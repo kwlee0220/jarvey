@@ -1,0 +1,6 @@
+#!	/bin/bash
+
+#java -jar antlr-4.7.2-complete.jar ColumnSelectionExpr.g4 -o jarvey/support/colexpr -no-listener -visitor
+java -jar antlr4-4.8-1-complete.jar ColumnSelectionExpr.g4 -o jarvey/support/colexpr -no-listener -visitor
+java -jar antlr4-4.8-1-complete.jar JarveyTypeExpr.g4 -o jarvey/support/typeexpr -no-listener -visitor
+

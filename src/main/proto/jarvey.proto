@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "jarvey.proto";
+
+//import public "jarvey.type.proto";
+
+package jarvey.proto;
+
+
+message SerializedProto {
+	oneof method {
+		ProtoBufSerializedProto proto_buf = 1;
+		JavaSerializedProto java = 2;
+	}
+}
+message ProtoBufSerializedProto {
+	string proto_class = 1;
+	oneof optional_object_class {
+		string object_class = 2;
+	}
+	bytes serialized = 3;
+}
+message JavaSerializedProto {
+	bytes serialized = 2;
+}

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "jarvey.proto";
+
+package jarvey.type.temporal;
+
+message TemporalPointProto {
+	message TimedPointProto {
+		double x = 1;
+		double y = 2;
+		int64 ts = 3;
+	}
+	
+	repeated TimedPointProto points = 1;
+}

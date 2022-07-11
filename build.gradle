@@ -1,0 +1,200 @@
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+group = 'etri'
+version = '0.0'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+[compileJava,compileTestJava]*.options*.encoding = 'UTF-8'
+
+buildscript {
+	repositories {
+		mavenLocal()
+		jcenter()
+	}
+	dependencies {
+		classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
+		classpath 'com.netflix.nebula:gradle-aggregate-javadocs-plugin:2.2.+'
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs 'src/main/antlr/'
+		}
+	}
+}
+
+repositories {
+    mavenLocal()
+	maven {
+		url "http://repo.osgeo.org/repository/release/"
+	}
+	mavenCentral()
+}
+
+ext {
+	geotools_version = '26.1'
+	snakeyaml_version = '1.30'
+	beanutils_version = '1.9.4'
+	
+	scala_version = '2.12'
+	spark_version = '3.1.2'
+}
+
+dependencies {
+	compile(project(":utils"))
+	compile project(":utils.geo")
+	
+	// GeoTools
+	implementation	"org.geotools:gt-epsg-hsql:${geotools_version}"
+	implementation "org.geotools:gt-shapefile:${geotools_version}"
+	api "org.geotools:gt-geojson:${geotools_version}"
+	
+	compile ("org.apache.spark:spark-sql_${scala_version}:${spark_version}")
+	compile "org.apache.spark:spark-hive_${scala_version}:${spark_version}"
+	
+	implementation "org.yaml:snakeyaml:${snakeyaml_version}"
+	implementation "commons-beanutils:commons-beanutils:${beanutils_version}"
+	
+	compile files('lib/javaGeom-0.11.2.jar')
+	
+	testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+shadowJar {
+	classifier 'all'
+	
+	zip64 true
+	mergeServiceFiles()
+	
+	exclude 'META-INF/*.SF'
+	exclude 'META-INF/*.DSA'
+	exclude 'META-INF/*.RSA'
+	
+	dependencies {
+		exclude(dependency("org.apache.spark:.*:"))
+		exclude(dependency("org.spark-project:.*:"))
+		exclude(dependency("org.scala-lang:.*:"))
+		exclude(dependency("org.apache.avro:.*:"))
+		exclude(dependency("org.apache.commons:.*:"))
+		exclude(dependency("org.apache.curator:.*:"))
+		exclude(dependency("org.apache.derby:.*:"))
+		exclude(dependency("org.apache.hadoop:.*:"))
+		exclude(dependency("org.apache.hive:.*:"))
+		exclude(dependency("org.apache.hive.shims:.*:"))
+		exclude(dependency("org.apache.kerby:.*:"))
+		exclude(dependency("org.apache.thrift:.*:"))
+		exclude(dependency("org.apache.xbean:.*:"))
+		exclude(dependency("org.datanucleus:.*:"))
+		exclude(dependency("org.codehaus.jackson:.*:"))
+		exclude(dependency("org.eclipse.jetty:.*:"))
+		exclude(dependency("org.tukaani:.*:"))
+		exclude(dependency("org.xerial.snappy:.*:"))
+		exclude(dependency("commons-beanutils:.*:"))
+		exclude(dependency("commons-codec:.*:"))
+		exclude(dependency("commons-dbcp:.*:"))
+		exclude(dependency("commons-lang:.*:"))
+		exclude(dependency("commons-pool:.*:"))
+		exclude(dependency("com.esotericsoftware:.*:"))
+		exclude(dependency("com.google.protobuf:.*:"))
+		exclude(dependency("com.sun.jersey:.*:"))
+		exclude(dependency("com.thoughtworks.paranamer:.*:"))
+		exclude(dependency("com.twitter:.*:"))
+		exclude(dependency("com.univocity:.*:"))
+		exclude(dependency("io.dropwizard.metrics:.*:"))
+		exclude(dependency("org.slf4j:.*:"))
+	}
+}
+
+task sourceJar(type: Jar) {
+	classifier 'sources'
+	from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar) {
+	classifier 'javadoc'
+	from javadoc.destinationDir
+}
+
+artifacts {
+	archives sourceJar
+	archives javadocJar
+	archives shadowJar
+}
+
+publishing {
+	publications {
+		marmotClient(MavenPublication) {
+			from components.java
+			
+			artifact sourceJar
+			artifact javadocJar
+			artifact shadowJar
+		}
+	}
+}
+
+ext.distDir = "${System.env.HOME}/tmp/jarvey.dist"
+task distributeBinary(type:Copy) {
+	dependsOn assemble
+	into "${distDir}"
+	from ("${projectDir}") {
+		include 'bin/**'
+		include 'lib/**'
+		include 'log4j.properties'
+		include '.gitignore'
+	}
+	from "${buildDir}/libs/${archivesBaseName}-${version}-javadoc.jar"
+}
+
+apply plugin: 'maven-publish'
+publishing {
+	publications {
+		main(MavenPublication) {
+			artifact jar
+			artifact sourceJar
+			artifact javadocJar
+		}
+	}
+}
+
+apply plugin: 'eclipse'
+eclipse {
+	classpath {
+		file {
+			withXml {
+				def node = it.asNode()
+				node.appendNode('classpathentry', [kind: 'output', path: 'classes'])
+			}
+			
+			whenMerged { cp ->
+				Map entryByPath = cp.entries.groupBy { entry -> entry.path }
+				entryByPath.each { key, values ->
+					if ( values.size() > 1 ) {
+            			def entry = values.first()
+            			if ( entry.kind == 'src' ) {
+            				entry.includes = []
+            				entry.excludes = []
+            			}
+            			int index = cp.entries.indexOf entry
+            			cp.entries.removeAll values
+            			cp.entries.add index, entry
+					}
+				}
+				cp.entries.each { entry ->
+					if ( entry.kind == 'src' && entry.hasProperty('output') ) {
+						if ( entry.path.startsWith("src/test/") ) {
+							entry.output = 'test_classes'
+						}
+						else {
+							entry.output = 'classes'
+						}
+					}
+				}
+			}
+		}
+	}
+}
