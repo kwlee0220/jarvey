@@ -5,7 +5,6 @@ import static org.apache.spark.sql.functions.callUDF;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.to_date;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -13,8 +12,6 @@ import jarvey.JarveySession;
 
 public class TestBuildTemporalPoint {
 	public static final void main(String[] args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[5]")

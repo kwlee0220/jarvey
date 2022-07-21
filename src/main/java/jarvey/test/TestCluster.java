@@ -2,7 +2,11 @@ package jarvey.test;
 
 import java.io.IOException;
 
-import org.apache.log4j.PropertyConfigurator;
+import utils.StopWatch;
+import utils.UnitUtils;
+import utils.func.Tuple;
+import utils.func.Unchecked;
+import utils.stream.FStream;
 
 import jarvey.JarveySession;
 import jarvey.SpatialDataset;
@@ -11,16 +15,9 @@ import jarvey.cluster.ClusterDatasetOptions;
 import jarvey.support.HdfsPath;
 import jarvey.type.DataUtils;
 import jarvey.type.JarveySchema;
-import utils.StopWatch;
-import utils.UnitUtils;
-import utils.func.Tuple;
-import utils.func.Unchecked;
-import utils.stream.FStream;
 
 public class TestCluster {
 	public static final void main(String[] args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[5]")

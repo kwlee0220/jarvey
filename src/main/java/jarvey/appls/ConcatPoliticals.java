@@ -6,13 +6,12 @@ import static org.apache.spark.sql.functions.lit;
 import static org.apache.spark.sql.functions.substring;
 import static org.apache.spark.sql.functions.when;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.spark.sql.SaveMode;
-import org.apache.spark.sql.types.StructType;
+
+import utils.StopWatch;
 
 import jarvey.JarveySession;
 import jarvey.SpatialDataset;
-import utils.StopWatch;
 
 /**
  * 
@@ -26,8 +25,6 @@ public class ConcatPoliticals {
 	private static final String OUTPUT = "district_combined";
 	
 	public static final void main(String... args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[5]")

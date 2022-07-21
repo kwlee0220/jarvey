@@ -2,12 +2,12 @@ package jarvey.appls;
 
 import static org.apache.spark.sql.functions.col;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.spark.sql.SaveMode;
+
+import utils.StopWatch;
 
 import jarvey.JarveySession;
 import jarvey.SpatialDataset;
-import utils.StopWatch;
 
 /**
  * 
@@ -25,8 +25,6 @@ public class BuildTenMinutePolicy {
 	private static final String RESULT = "tmp/10min/elderly_care_candidates";
 	
 	public static final void main(String... args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[10]")

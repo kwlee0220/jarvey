@@ -3,7 +3,6 @@ package jarvey.test;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.to_timestamp;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -17,8 +16,6 @@ import jarvey.type.JarveySchema;
 
 public class TestReadCsvFile {
 	public static final void main(String[] args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		SparkSession spark = SparkSession.builder()
 											.appName("load_csv_files")
 											.master("local[7]")

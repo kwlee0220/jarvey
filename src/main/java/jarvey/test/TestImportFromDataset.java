@@ -1,6 +1,5 @@
 package jarvey.test;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -9,8 +8,6 @@ import jarvey.JarveySession;
 
 public class TestImportFromDataset {
 	public static final void main(String[] args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[2]")

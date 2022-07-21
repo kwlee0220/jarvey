@@ -10,13 +10,18 @@ import java.util.Properties;
 import javax.annotation.Nullable;
 
 import org.apache.commons.text.StringSubstitutor;
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+import utils.PicocliCommand;
+import utils.UsageHelp;
+import utils.Utilities;
+import utils.func.FOption;
+
 import jarvey.JarveySession;
+
 import picocli.CommandLine;
 import picocli.CommandLine.Help.Ansi;
 import picocli.CommandLine.Mixin;
@@ -24,10 +29,6 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.RunLast;
 import picocli.CommandLine.Spec;
-import utils.PicocliCommand;
-import utils.UsageHelp;
-import utils.Utilities;
-import utils.func.FOption;
 
 /**
  * 
@@ -122,7 +123,6 @@ public abstract class JarveyLocalCommand implements PicocliCommand<JarveySession
 		String rfFile = props.getProperty("log4j.appender.rfout.File");
 		rfFile = StringSubstitutor.replace(rfFile, bindings);
 		props.setProperty("log4j.appender.rfout.File", rfFile);
-		PropertyConfigurator.configure(props);
 		if ( s_logger.isDebugEnabled() ) {
 			s_logger.debug("use log4j.properties from {}", propsFile);
 		}

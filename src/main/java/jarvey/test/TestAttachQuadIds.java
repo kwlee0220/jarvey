@@ -5,7 +5,8 @@ import static org.apache.spark.sql.functions.size;
 
 import java.util.Map;
 
-import org.apache.log4j.PropertyConfigurator;
+import utils.func.Tuple;
+import utils.stream.FStream;
 
 import jarvey.JarveySession;
 import jarvey.SpatialDataset;
@@ -13,8 +14,6 @@ import jarvey.cluster.ClusterDatasetOptions;
 import jarvey.cluster.EstimateQuadKeys;
 import jarvey.support.HdfsPath;
 import jarvey.support.MapTile;
-import utils.func.Tuple;
-import utils.stream.FStream;
 
 
 public class TestAttachQuadIds {
@@ -22,8 +21,6 @@ public class TestAttachQuadIds {
 	private static final String CLUSTER_MEMBER_COL_NAME = SpatialDataset.CLUSTER_MEMBERS;
 	
 	public static final void main(String[] args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[5]")

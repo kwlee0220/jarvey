@@ -2,14 +2,14 @@ package jarvey.test;
 
 import static org.apache.spark.sql.functions.col;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+
+import utils.stream.FStream;
 
 import jarvey.JarveySession;
 import jarvey.SpatialDataset;
 import jarvey.type.GeometryValue;
-import utils.stream.FStream;
 
 
 /**
@@ -18,8 +18,6 @@ import utils.stream.FStream;
 */
 public class TestRangeQuery {
 	public static final void main(String[] args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[5]")

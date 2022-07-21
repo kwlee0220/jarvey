@@ -2,7 +2,6 @@ package jarvey.test;
 
 import static jarvey.jarvey_functions.spatial;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
@@ -13,8 +12,6 @@ import jarvey.SpatialDataset;
 
 public class TestImportFromShapefile {
 	public static final void main(String[] args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[2]")

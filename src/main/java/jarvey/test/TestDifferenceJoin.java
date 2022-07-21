@@ -1,11 +1,10 @@
 package jarvey.test;
 
-import org.apache.log4j.PropertyConfigurator;
+import utils.StopWatch;
 
 import jarvey.JarveySession;
 import jarvey.SpatialDataset;
 import jarvey.type.JarveySchema;
-import utils.StopWatch;
 
 
 /**
@@ -18,8 +17,6 @@ public class TestDifferenceJoin {
 	private static final String ENVL = SpatialDataset.ENVL4326;
 	
 	public static final void main(String[] args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[10]")

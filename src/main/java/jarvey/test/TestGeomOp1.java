@@ -2,15 +2,11 @@ package jarvey.test;
 
 import static org.apache.spark.sql.functions.col;
 
-import org.apache.log4j.PropertyConfigurator;
-
 import jarvey.JarveySession;
 import jarvey.SpatialDataset;
 
 public class TestGeomOp1 {
 	public static final void main(String[] args) throws Exception {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		JarveySession jarvey = JarveySession.builder()
 											.appName("load_shapefile")
 											.master("local[5]")
