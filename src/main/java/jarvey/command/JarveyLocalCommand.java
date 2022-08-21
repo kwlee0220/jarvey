@@ -4,16 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Properties;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.text.StringSubstitutor;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Maps;
 
 import utils.PicocliCommand;
 import utils.UsageHelp;
@@ -54,7 +51,7 @@ public abstract class JarveyLocalCommand implements PicocliCommand<JarveySession
 	
 	@Nullable private JarveySession m_jarvey;
 	
-	protected abstract void run(JarveySession marmot) throws Exception;
+	protected abstract void run(JarveySession jarvey) throws Exception;
 
 	@SuppressWarnings("deprecation")
 	public static final void run(JarveyLocalCommand cmd, String... args) throws Exception {
@@ -107,24 +104,17 @@ public abstract class JarveyLocalCommand implements PicocliCommand<JarveySession
 
 	@Override
 	public void configureLog4j() throws IOException {
-		File propsFile = new File(getHomeDir(), "log4j.properties");
+		File confFile = new File(getHomeDir(), "log4j2.xml");
 		if ( m_verbose ) {
-			System.out.printf("use log4j.properties: file=%s%n", propsFile);
+			s_logger.debug("use log4j configuration from {}", confFile);
 		}
 		
-		Properties props = new Properties();
-		try ( InputStream is = new FileInputStream(propsFile) ) {
-			props.load(is);
+		try ( InputStream is = new FileInputStream(confFile) ) {
+			ConfigurationSource cs = new ConfigurationSource(is);
+			Configurator.initialize(null, cs);
 		}
-		
-		Map<String,String> bindings = Maps.newHashMap();
-		bindings.put("jarvey.home", propsFile.getParentFile().toString());
-
-		String rfFile = props.getProperty("log4j.appender.rfout.File");
-		rfFile = StringSubstitutor.replace(rfFile, bindings);
-		props.setProperty("log4j.appender.rfout.File", rfFile);
 		if ( s_logger.isDebugEnabled() ) {
-			s_logger.debug("use log4j.properties from {}", propsFile);
+			s_logger.debug("use log4j configuration from {}", confFile);
 		}
 	}
 }
