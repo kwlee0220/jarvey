@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey;
 
 import java.io.File;

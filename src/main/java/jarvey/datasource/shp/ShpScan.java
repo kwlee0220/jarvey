@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.datasource.shp;
 
 import java.util.Map;

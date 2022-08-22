@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.datasource;
 
 import java.io.IOException;

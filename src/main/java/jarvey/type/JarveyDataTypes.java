@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.type;
 
 import org.apache.spark.sql.types.DataTypes;

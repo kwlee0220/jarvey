@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.type;
 
 import java.sql.Date;

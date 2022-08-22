@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.join;
 
 import java.util.Set;

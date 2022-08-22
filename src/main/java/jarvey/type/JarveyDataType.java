@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.type;
 
 import java.io.Serializable;
@@ -41,6 +38,11 @@ public abstract class JarveyDataType implements Serializable {
 	 */
 	public abstract Object deserialize(Object value);
 	
+	/**
+	 * Returns java class for this jarvey datatype.
+	 *
+	 * @return	Java class.
+	 */
 	public abstract Class<?> getJavaClass();
 	
 	JarveyDataType(DataType sparkType) {
@@ -138,6 +140,12 @@ public abstract class JarveyDataType implements Serializable {
 		return JarveyTypeParser.parseTypeExpr(typeExpr);
 	}
 	
+	/**
+	 * Get JavaDataType that corresponding to the given java class.
+	 *
+	 * @param cls	Java class
+	 * @return	JavaDataType for this java class.
+	 */
 	public static JarveyDataType fromJavaClass(Class<?> cls) {
 		if ( Geometry.class.isAssignableFrom(cls) ) {
 			return GeometryType.fromJavaClass(cls, 0);

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.datasource;
 
 import static org.apache.spark.sql.functions.array_intersect;

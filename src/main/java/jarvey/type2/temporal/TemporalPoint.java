@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.type2.temporal;
 
 import java.sql.Timestamp;

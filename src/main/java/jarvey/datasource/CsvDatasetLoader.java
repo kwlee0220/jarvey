@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.datasource;
 
 import static jarvey.jarvey_functions.spatial;

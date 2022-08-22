@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey;
 
 import static jarvey.jarvey_functions.JV_AttachQuadMembers;

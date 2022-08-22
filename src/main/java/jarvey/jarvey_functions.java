@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey;
 
 import static org.apache.spark.sql.functions.callUDF;

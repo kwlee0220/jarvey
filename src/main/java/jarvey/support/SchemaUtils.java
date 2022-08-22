@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.support;
 
 import java.util.List;

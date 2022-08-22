@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.cluster;
 
 import utils.UnitUtils;

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jarvey.type2;
 
 import java.io.Serializable;
