@@ -5,7 +5,7 @@ import java.io.IOException;
 import utils.StopWatch;
 import utils.UnitUtils;
 import utils.func.Tuple;
-import utils.func.Unchecked;
+import utils.func.UncheckedPredicate;
 import utils.stream.FStream;
 
 import jarvey.JarveySession;
@@ -39,7 +39,7 @@ public class TestCluster {
 		
 		HdfsPath dsPath = jarvey.getHdfsPath(dsId + "_clustered");
 		dsPath.streamChildFiles()
-				.filter(Unchecked.sneakyThrow(TestCluster::isClusterFile))
+				.filter(UncheckedPredicate.sneakyThrow(TestCluster::isClusterFile))
 				.map(path -> {
 					try {
 						long size = FStream.from(path.walkRegularFileTree())

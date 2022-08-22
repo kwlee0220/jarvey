@@ -11,13 +11,14 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import utils.func.UncheckedSupplier;
+import utils.geo.Shapefile;
+import utils.stream.FStream;
+
 import jarvey.datasource.MultiSourcePartitionReader;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveySchema;
 import jarvey.type.JarveySchemaBuilder;
-import utils.func.Unchecked;
-import utils.geo.Shapefile;
-import utils.stream.FStream;
 
 
 /**
@@ -33,7 +34,7 @@ class ShpPartitionReader extends MultiSourcePartitionReader<File> {
 	
 	ShpPartitionReader(StructType schema, GeometryType geomType, File start, String charset) {
 		// collect shp files on the time when 'next()' is called for the first time.
-		super(FStream.lazy(Unchecked.lift(() -> { return FStream.from(collectShpFiles(start)); })));
+		super(FStream.lazy(UncheckedSupplier.ignore(() -> FStream.from(collectShpFiles(start)))));
 		
 		JarveySchemaBuilder builder = JarveySchema.builder();
 		StructField[] fields = schema.fields();

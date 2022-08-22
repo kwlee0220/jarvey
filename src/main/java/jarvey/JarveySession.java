@@ -15,6 +15,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.UDFRegistration;
 
+import utils.func.UncheckedPredicate;
+import utils.stream.FStream;
+
 import jarvey.datasource.DatasetException;
 import jarvey.datasource.JarveyDataFrameReader;
 import jarvey.support.HdfsPath;
@@ -22,8 +25,6 @@ import jarvey.type.DataUtils;
 import jarvey.type.JarveySchema;
 import jarvey.type2.temporal.TemporalUDFs;
 import jarvey.udf.SpatialUDFs;
-import utils.func.Unchecked;
-import utils.stream.FStream;
 
 /**
  *
@@ -67,7 +68,7 @@ public class JarveySession {
 	
 	public List<String> listDatasets() {
 		return m_dbRoot.streamChildFiles()
-					.filter(Unchecked.sneakyThrow(HdfsPath::isDirectory))
+					.filter(UncheckedPredicate.sneakyThrow(HdfsPath::isDirectory))
 					.filter(HdfsPath::isRegular)
 					.map(HdfsPath::getName)
 					.toList();
