@@ -1,0 +1,3 @@
+#!	/bin/bash
+
+java -Xms1g -Xmx7g -cp $JARVEY_HOME/sbin/jarvey.jar jarvey.command.DataSetMain --master 'local[7]' "$@"

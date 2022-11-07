@@ -13,10 +13,12 @@ import java.util.stream.Stream;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import utils.Utilities;
 import utils.func.Lazy;
 import utils.geo.util.GeometryUtils;
 
@@ -27,8 +29,10 @@ import utils.geo.util.GeometryUtils;
 public class MapTile implements Comparable<MapTile>, Serializable {
 	private static final long serialVersionUID = 6102533639982982795L;
 	public static final MapTile WORLD = new MapTile(0, 0, 0);
-	public static final String QKEY_OUTLIER = "X";
-	public static final Long QID_OUTLIER = Long.valueOf(-9L);
+	public static final String OUTLIER_QKEY = "X";
+	public static final String ROOT_QKEY = "";
+	public static final Long OUTLIER_QID = Long.valueOf(-9L);
+	public static final Long ROOT_QID = Long.valueOf(0);
 	
 	private byte m_zoom;
 	private int m_x;
@@ -45,6 +49,8 @@ public class MapTile implements Comparable<MapTile>, Serializable {
 	}
     
 	public static MapTile fromQuadKey(String quadKey) {
+		Utilities.checkArgument(!quadKey.equals(OUTLIER_QKEY), "outlier quadkey");
+		
 		int tileX = 0;
 		int tileY = 0;
 		int zoom = quadKey.length();
@@ -75,11 +81,13 @@ public class MapTile implements Comparable<MapTile>, Serializable {
 	}
 	
 	public static MapTile fromQuadId(long quadId) {
+		Utilities.checkArgument(!OUTLIER_QID.equals(quadId), "outlier quad-id");
+		
 		return fromQuadKey(toQuadKey(quadId));
 	}
 	
 	public static String toQuadKey(long quadId) {
-		if ( quadId >= 0 ) {
+		if ( quadId > 0 ) {
 			String qkey = Long.toString(quadId, 4);
 			if ( qkey.length() > 31 ) {
 				throw new IllegalArgumentException("invalid quad-id (too long): " + quadId);
@@ -87,17 +95,22 @@ public class MapTile implements Comparable<MapTile>, Serializable {
 			
 			return qkey;
 		}
+		else if ( quadId == 0 ) {
+			return ROOT_QKEY;
+		}
 		else {
-			return QKEY_OUTLIER;
+			return OUTLIER_QKEY;
 		}
 	}
 	
-	public static long toQuadId(String quadKey) {
-		if ( quadKey.equalsIgnoreCase(QKEY_OUTLIER) ) {
-			return QID_OUTLIER;
-		}
-		else {
-			return Long.parseLong(quadKey, 4);
+	public static long toQuadId(String qkey) {
+		switch (qkey) {
+			case OUTLIER_QKEY:
+				return OUTLIER_QID;
+			case "":
+				return ROOT_QID;
+			default:
+				return Long.parseLong(qkey, 4);
 		}
 	}
 	
@@ -152,7 +165,7 @@ public class MapTile implements Comparable<MapTile>, Serializable {
 	}
 	
 	public long getQuadId() {
-		return Long.parseLong(getQuadKey(), 4);
+		return toQuadId(getQuadKey());
 	}
 	
 	public boolean contains(Coordinate coord) {
@@ -177,6 +190,10 @@ public class MapTile implements Comparable<MapTile>, Serializable {
 	
 	public Envelope getBounds() {
 		return m_bounds.get();
+	}
+	
+	public Polygon getBoundsPolygon() {
+		return GeometryUtils.toPolygon(m_bounds.get());
 	}
 	
 	public MapTile next() {
@@ -307,6 +324,15 @@ public class MapTile implements Comparable<MapTile>, Serializable {
 									.get();
 		result.addAll(subtractQuadKey(matchedQuadKey, quadKey2));
 		return result;
+	}
+	
+	public static boolean intersects(String qkey1, String qkey2) {
+		if ( (qkey1.length() - qkey2.length())  > 0 ) {
+			return qkey2.startsWith(qkey1);
+		}
+		else {
+			return qkey1.startsWith(qkey2);
+		}
 	}
 	
 //	public static List<String> listSubQuadKeys(String quadKey, int depth) {

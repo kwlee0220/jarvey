@@ -1,24 +1,14 @@
 package jarvey.command;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Properties;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.text.StringSubstitutor;
+import org.apache.hadoop.fs.Path;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Maps;
-
-import utils.PicocliCommand;
-import utils.UsageHelp;
-import utils.Utilities;
-import utils.func.FOption;
 
 import jarvey.JarveySession;
 
@@ -29,6 +19,10 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.RunLast;
 import picocli.CommandLine.Spec;
+import utils.PicocliCommand;
+import utils.UsageHelp;
+import utils.Utilities;
+import utils.func.FOption;
 
 /**
  * 
@@ -46,7 +40,10 @@ public abstract class JarveyCommand implements PicocliCommand<JarveySession> {
 	@Option(names={"-v"}, description={"verbose"})
 	protected boolean m_verbose = false;
 	
-	@Option(names={"--db_root"}, paramLabel="path", description={"HDFS path prefix"})
+	@Option(names={"--config"}, paramLabel="path", description={"HDFS configuration file path"})
+	protected String m_configPath = null;
+	
+	@Option(names={"--dataset_root"}, paramLabel="path", description={"HDFS dataset root path"})
 	protected String m_dbRootPath = null;
 	
 	@Nullable private JarveySession m_jarvey;
@@ -91,9 +88,14 @@ public abstract class JarveyCommand implements PicocliCommand<JarveySession> {
 		if ( m_jarvey == null ) {
 			JarveySession.Builder builder = JarveySession.builder()
 														.appName("jarvey_application");
-			if ( m_dbRootPath != null ) {
-//				builder = builder.warehouseRoot(m_dbRootPath);
-//				builder = builder.dbRoot(m_dbRootPath);
+			if ( m_configPath != null ) {
+				builder = builder.hadoopDatasetRoot(new Path(m_configPath), m_dbRootPath);
+			}
+			else if ( m_dbRootPath != null ) {
+				builder = builder.root(new File(m_dbRootPath));
+			}
+			else {
+				builder = builder.hadoopDatasetRoot(new Path("jarvey-hadoop.xml"), "datasets");
 			}
 			m_jarvey = builder.getOrCreate();
 		}
@@ -103,24 +105,14 @@ public abstract class JarveyCommand implements PicocliCommand<JarveySession> {
 
 	@Override
 	public void configureLog4j() throws IOException {
-		File propsFile = new File(getHomeDir(), "log4j.properties");
+		File confFile = new File(getHomeDir(), "log4j2.xml");
 		if ( m_verbose ) {
-			System.out.printf("use log4j.properties: file=%s%n", propsFile);
+			s_logger.debug("use log4j configuration from {}", confFile);
 		}
-		
-		Properties props = new Properties();
-		try ( InputStream is = new FileInputStream(propsFile) ) {
-			props.load(is);
-		}
-		
-		Map<String,String> bindings = Maps.newHashMap();
-		bindings.put("jarvey.home", propsFile.getParentFile().toString());
 
-		String rfFile = props.getProperty("log4j.appender.rfout.File");
-		rfFile = StringSubstitutor.replace(rfFile, bindings);
-		props.setProperty("log4j.appender.rfout.File", rfFile);
+		Configurator.initialize(null, confFile.getAbsolutePath());
 		if ( s_logger.isDebugEnabled() ) {
-			s_logger.debug("use log4j.properties from {}", propsFile);
+			s_logger.debug("use log4j configuration from {}", confFile);
 		}
 	}
 }

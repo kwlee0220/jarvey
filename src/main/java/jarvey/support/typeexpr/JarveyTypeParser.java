@@ -5,7 +5,6 @@ import java.util.Set;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.apache.spark.sql.types.DataTypes;
 
 import com.google.common.collect.Sets;
 
@@ -14,11 +13,12 @@ import jarvey.support.typeexpr.JarveyTypeExprParser.GeomtryTypeExprContext;
 import jarvey.support.typeexpr.JarveyTypeExprParser.NullSpecContext;
 import jarvey.support.typeexpr.JarveyTypeExprParser.SridSpecContext;
 import jarvey.support.typeexpr.JarveyTypeExprParser.TypeExprContext;
-import jarvey.type.ArrayType;
 import jarvey.type.EnvelopeType;
 import jarvey.type.GeometryType;
+import jarvey.type.GridCellType;
+import jarvey.type.JarveyArrayType;
 import jarvey.type.JarveyDataType;
-import jarvey.type.RegularType;
+import jarvey.type.JarveyDataTypes;
 
 /**
  * 
@@ -55,32 +55,40 @@ public class JarveyTypeParser {
 			else {
 				switch ( typeName ) {
 					case "String":
-						return RegularType.of(DataTypes.StringType);
+						return JarveyDataTypes.String_Type;
 					case "Long":
-						return RegularType.of(DataTypes.LongType);
+						return JarveyDataTypes.Long_Type;
 					case "Integer":
 					case "Int":
-						return RegularType.of(DataTypes.IntegerType);
+						return JarveyDataTypes.Integer_Type;
 					case "Short":
-						return RegularType.of(DataTypes.ShortType);
+						return JarveyDataTypes.Short_Type;
 					case "Byte":
-						return RegularType.of(DataTypes.ByteType);
+						return JarveyDataTypes.Byte_Type;
 					case "Double":
-						return RegularType.of(DataTypes.DoubleType);
+						return JarveyDataTypes.Double_Type;
 					case "Float":
-						return RegularType.of(DataTypes.FloatType);
+						return JarveyDataTypes.Float_Type;
 					case "Binary":
-						return RegularType.of(DataTypes.BinaryType);
+						return JarveyDataTypes.Binary_Type;
 					case "Boolean":
-						return RegularType.of(DataTypes.BooleanType);
+						return JarveyDataTypes.Boolean_Type;
 					case "Date":
-						return RegularType.of(DataTypes.DateType);
+						return JarveyDataTypes.Date_Type;
 					case "Timestamp":
-						return RegularType.of(DataTypes.TimestampType);
+						return JarveyDataTypes.Timestamp_Type;
 					case "CalendarInterval":
-						return RegularType.of(DataTypes.CalendarIntervalType);
+						return JarveyDataTypes.CalendarInterval_Type;
 					case "Envelope":
 						return EnvelopeType.get();
+					case "GridCell":
+						return GridCellType.get();
+					case "Vector":
+						return JarveyDataTypes.Vector_Type;
+						
+					case "TemporalPoint":
+						return JarveyDataTypes.Temporal_Point_Type;
+						
 					case "Array":
 						TypeExprContext elmTypeCxt = ctx.getChild(TypeExprContext.class, 0);
 						JarveyDataType elmType = (JarveyDataType)visitTypeExpr(elmTypeCxt);
@@ -90,7 +98,7 @@ public class JarveyTypeParser {
 						if ( nullCtx != null ) {
 							nullable = (boolean)visitNullSpec(nullCtx);
 						}
-						return ArrayType.of(elmType, nullable);
+						return JarveyArrayType.of(elmType, nullable);
 					default:
 						throw new AssertionError("unknown type name: " + typeName);
 				}

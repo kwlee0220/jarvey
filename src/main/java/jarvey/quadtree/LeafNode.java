@@ -1,7 +1,7 @@
 package jarvey.quadtree;
 
-import static jarvey.join.SpatialRelation.ALL;
-import static jarvey.join.SpatialRelation.INTERSECTS;
+import static jarvey.optor.geom.SpatialRelation.ALL;
+import static jarvey.optor.geom.SpatialRelation.INTERSECTS;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -18,7 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-import jarvey.join.SpatialRelation;
+import jarvey.optor.geom.SpatialRelation;
+
 import utils.geo.quadtree.TooBigValueException;
 import utils.stream.FStream;
 
@@ -105,10 +106,20 @@ public class LeafNode<T extends Enveloped, P extends Partition<T>> extends Node<
 	}
 	
 	boolean expand() {
-		return m_partition.tryExpand();
+		String oldStr = m_partition.toString();
+		boolean ret = m_partition.tryExpand();
+		if ( ret ) {
+			if ( s_logger.isDebugEnabled() ) {
+				s_logger.debug("QuadTree node partition is expanded: {} -> {}",
+								oldStr, m_partition.toString());
+			}
+		}
+		
+		return ret;
 	}
 	
 	NonLeafNode<T,P> split() {
+		// 현 노드의 영역을 4분할한 자식 노드를 만든다.
 		@SuppressWarnings("unchecked")
 		LeafNode<T,P>[] childNodes = IntStream.range(0, QuadTree.QUAD)
 											.mapToObj(idx -> new LeafNode<T,P>(getQuadKey()+idx, m_partSupplier))
@@ -119,6 +130,7 @@ public class LeafNode<T extends Enveloped, P extends Partition<T>> extends Node<
 			QuadTree.link(node, (i == childNodes.length-1) ? m_next : childNodes[i+1]);
 		}
 		
+		// 현 노드에 포함된 모든 데이터를 자식 노드에 분산 적재시킨다.
 		Iterator<T> iter = m_partition.values().iterator();
 		while ( iter.hasNext() ) {
 			T v = iter.next();
@@ -163,7 +175,8 @@ public class LeafNode<T extends Enveloped, P extends Partition<T>> extends Node<
 										.filter(n -> n.getValueCount() == getValueCount())
 										.count();
 		if ( fullCopiedCnt == QuadTree.QUAD ) {
-			throw new TooBigValueException("values in this leaf-node are too big for node-split");
+			// 현 노드에 포함된 모든 데이터들의 영역이 너무 커서 4분할된 자식 노드에 모두 포함되어			
+			throw new TooBigValueException("All the values in this leaf-node are too big for node-split");
 //			throw new AssertionError("values in this leaf-node are too big for node-split");
 		}
 		if ( s_logger.isDebugEnabled() )  {

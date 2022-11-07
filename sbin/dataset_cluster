@@ -1,0 +1,4 @@
+#!	/bin/bash
+
+spark-submit --class jarvey.command.DataSetMain --master yarn --deploy-mode cluster --driver-memory 5g --num-executors 50 --executor-memory 5g $JARVEY_HOME/sbin/jarvey.jar "$@"
+

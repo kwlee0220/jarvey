@@ -18,7 +18,8 @@ import utils.stream.KeyedGroups;
  */
 public final class PointerPartition implements Partition<Pointer> {
 	private static final Logger s_logger = LoggerFactory.getLogger(PointerPartition.class);
-//	private static final int MAX_MINI_PARTITION_SLOTS = 512;
+//	private static final int MAX_MINI_PARTITION_SLOTS = 1024;
+//	private static final int MAX_MINI_PARTITION_SLOTS = 256;
 	private static final int MAX_MINI_PARTITION_SLOTS = 64;
 	private static final float FILL_RATIO = 0.85f;
 	

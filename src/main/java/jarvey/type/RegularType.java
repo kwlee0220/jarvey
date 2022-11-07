@@ -1,7 +1,5 @@
 package jarvey.type;
 
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -16,84 +14,26 @@ import com.google.common.collect.Maps;
  *
  * @author Kang-Woo Lee (ETRI)
  */
-public class RegularType extends JarveyDataType {
+public abstract class RegularType extends JarveyDataType {
 	private static final long serialVersionUID = 1L;
 	
-	public static final RegularType of(DataType sparkType) {
-		return new RegularType(sparkType);
-	}
-	
-	private RegularType(DataType type) {
+	protected RegularType(DataType type) {
 		super(type);
 		
 		if ( type instanceof ArrayType ) {
 			throw new IllegalArgumentException("invalid regular datatype: " + type);
 		}
 	}
-	
-	@Override
-	public Class<?> getJavaClass() {
-		Class<?> cls = TYPE_TO_CLASSES.get(getSparkType());
-		if ( cls != null ) {
-			return cls;
-		}
-		
-		throw new IllegalArgumentException("invalid Spark DataType" + getSparkType());
-	}
 
 	@Override
 	public Object serialize(Object value) {
-		if ( value == null ) {
-			return null;
-		}
-		
-		Function<Object,Object> serializer = SERIALIZERS.get(getSparkType());
-		return serializer != null ? serializer.apply(value) : value;
+		return value;
 	}
 	
 	@Override
 	public Object deserialize(Object value) {
-		if ( value == null ) {
-			return null;
-		}
-		
-		Function<Object,Object> deser = DESERIALIZERS.get(getSparkType());
-		if ( deser != null ) {
-			return deser.apply(value);
-		}
-		else {
-			return value;
-		}
+		return value;
 	}
-
-//	private static final Pattern ARRAY_SUBTYPE_PATTERN = Pattern.compile("\\<\\s*(\\S+)\\s*(,\\S+)\\>");
-//	public static RegularType fromString(String typeExpr) {
-//		typeExpr = typeExpr.trim().toLowerCase();
-//		if ( typeExpr.startsWith("array") ) {
-//			String subTypeName = typeExpr.substring("array".length());
-//			Matcher matcher = ARRAY_SUBTYPE_PATTERN.matcher(subTypeName);
-//			if ( !matcher.find() ) {
-//				throw new IllegalArgumentException(String.format("invalid array type: '%s'", typeExpr));
-//			}
-//			
-//			int groupCnt = matcher.groupCount();
-//			if ( groupCnt >= 1 ) {
-//				subTypeName = matcher.group(1);
-//				JarveyDataType elmType = JarveyDataType.fromString(subTypeName);
-//				DataType arrType = DataTypes.createArrayType(elmType.getSparkType(), true);
-//				return new RegularType(arrType);
-//			}
-//			
-//			throw new IllegalArgumentException(String.format("invalid array type: '%s'", typeExpr));
-//		}
-//		
-//		DataType dtype = TYPEEXPR_TO_TYPE.get(typeExpr);
-//		if ( dtype != null ) {
-//			return new RegularType(dtype);
-//		}
-//		
-//		throw new IllegalArgumentException(String.format("invalid type: '%s'", typeExpr));
-//	}
 	
 	@Override
 	public String toString() {
@@ -124,7 +64,7 @@ public class RegularType extends JarveyDataType {
 	}
 	
 	public static final Map<DataType, String> TYPE_NAMES = Maps.newHashMap();
-	public static final Map<DataType, Class<?>> TYPE_TO_CLASSES = Maps.newHashMap();
+//	public static final Map<DataType, Class<?>> TYPE_TO_CLASSES = Maps.newHashMap();
 	public static final Map<String, DataType> TYPEEXPR_TO_TYPE = Maps.newHashMap();
 	public static final Map<DataType, Function<Object,Object>> SERIALIZERS = Maps.newHashMap();
 	public static final Map<DataType, Function<Object,Object>> DESERIALIZERS = Maps.newHashMap();
@@ -141,18 +81,6 @@ public class RegularType extends JarveyDataType {
 		TYPE_NAMES.put(DataTypes.DateType, "Date");
 		TYPE_NAMES.put(DataTypes.TimestampType, "Timestamp");
 		TYPE_NAMES.put(DataTypes.CalendarIntervalType, "CalendarInterval");
-		
-		TYPE_TO_CLASSES.put(DataTypes.StringType, String.class);
-		TYPE_TO_CLASSES.put(DataTypes.LongType, Long.class);
-		TYPE_TO_CLASSES.put(DataTypes.IntegerType, Integer.class);
-		TYPE_TO_CLASSES.put(DataTypes.ShortType, Short.class);
-		TYPE_TO_CLASSES.put(DataTypes.ByteType, Byte.class);
-		TYPE_TO_CLASSES.put(DataTypes.DoubleType, Double.class);
-		TYPE_TO_CLASSES.put(DataTypes.FloatType, Float.class);
-		TYPE_TO_CLASSES.put(DataTypes.BinaryType, Byte[].class);
-		TYPE_TO_CLASSES.put(DataTypes.BooleanType, Boolean.class);
-		TYPE_TO_CLASSES.put(DataTypes.DateType, Date.class);
-		TYPE_TO_CLASSES.put(DataTypes.TimestampType, Timestamp.class);
 		
 		TYPEEXPR_TO_TYPE.put("string", DataTypes.StringType);
 		TYPEEXPR_TO_TYPE.put("int", DataTypes.StringType);

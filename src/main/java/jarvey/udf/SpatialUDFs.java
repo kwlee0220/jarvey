@@ -1,6 +1,7 @@
 package jarvey.udf;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,18 +24,20 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.precision.GeometryPrecisionReducer;
 
 import jarvey.JarveyRuntimeException;
-import jarvey.SpatialDataset;
 import jarvey.support.MapTile;
-import jarvey.type.ArrayType;
 import jarvey.type.DataUtils;
-import jarvey.type.EnvelopeValue;
+import jarvey.type.EnvelopeBean;
+import jarvey.type.EnvelopeType;
+import jarvey.type.GeometryArrayBean;
+import jarvey.type.GeometryBean;
 import jarvey.type.GeometryType;
-import jarvey.type.GeometryValue;
+import jarvey.type.JarveyArrayType;
 import jarvey.type.JarveyDataTypes;
-import jarvey.type2.GeometryArrayValue;
-import jarvey.type2.temporal.BuildTemporalPointUDAF;
+import jarvey.type.temporal.MakeLineUDAF;
+
 import scala.collection.mutable.WrappedArray;
 import utils.func.Tuple;
 import utils.geo.util.CoordinateTransform;
@@ -47,6 +50,8 @@ import utils.stream.FStream;
  * @author Kang-Woo Lee (ETRI)
  */
 public class SpatialUDFs {
+	private static final EnvelopeType SERDE_ENVELOPE = JarveyDataTypes.Envelope_Type;
+	
 	private SpatialUDFs() {
 		throw new AssertionError("Should not be called: class=" + SpatialUDFs.class);
 	}
@@ -55,7 +60,7 @@ public class SpatialUDFs {
 		public Geometry create(T arg1);
 	}
 	private static final <T> UDF1<T, byte[]> adapt(GeometryFactory<T> fact) {
-		return (v1) -> GeometryValue.serialize(fact.create(v1));
+		return (v1) -> GeometryBean.serialize(fact.create(v1));
 	};
 	
 	static interface GeometryOperator extends Serializable {
@@ -63,8 +68,8 @@ public class SpatialUDFs {
 	}
 	private static final UDF1<byte[], byte[]> adapt(GeometryOperator optor) {
 		return wkb -> {
-			Geometry in = GeometryValue.deserialize(wkb);
-			return GeometryValue.serialize(optor.apply(in));
+			Geometry in = GeometryBean.deserialize(wkb);
+			return GeometryBean.serialize(optor.apply(in));
 		};
 	};
 	
@@ -73,9 +78,9 @@ public class SpatialUDFs {
 	}
 	private static final <T> UDF2<byte[], T, byte[]> adapt(Arg1GeometryOperator<T> optor) {
 		return (wkb, arg) -> {
-			Geometry in = GeometryValue.deserialize(wkb);
+			Geometry in = GeometryBean.deserialize(wkb);
 			Geometry out = optor.apply(in, arg);
-			return GeometryValue.serialize(out);
+			return GeometryBean.serialize(out);
 		};
 	};
 	
@@ -84,11 +89,11 @@ public class SpatialUDFs {
 	}
 	private static final UDF2<byte[],byte[],byte[]> adapt(BinaryGeometryOperator optor) {
 		return (wkb1, wkb2) -> {
-			Geometry geom1 = GeometryValue.deserialize(wkb1);
-			Geometry geom2 = GeometryValue.deserialize(wkb2);
+			Geometry geom1 = GeometryBean.deserialize(wkb1);
+			Geometry geom2 = GeometryBean.deserialize(wkb2);
 			
 			Geometry out = optor.apply(geom1, geom2);
-			return GeometryValue.serialize(out);
+			return GeometryBean.serialize(out);
 		};
 	};
 	
@@ -97,7 +102,7 @@ public class SpatialUDFs {
 	}
 	private static final <T> UDF1<byte[], T> adapt(GeometryFunction<T> func) {
 		return (wkb) -> {
-			Geometry geom = GeometryValue.deserialize(wkb);
+			Geometry geom = GeometryBean.deserialize(wkb);
 			return func.apply(geom);
 		};
 	};
@@ -107,7 +112,7 @@ public class SpatialUDFs {
 	}
 	private static final <IN,OUT> UDF2<byte[], IN, OUT> adapt(Arg1GeometryFunction<IN,OUT> func) {
 		return (wkb, arg) -> {
-			Geometry geom = GeometryValue.deserialize(wkb);
+			Geometry geom = GeometryBean.deserialize(wkb);
 			return func.apply(geom, arg);
 		};
 	};
@@ -117,8 +122,8 @@ public class SpatialUDFs {
 	}
 	private static final <T> UDF2<byte[], byte[], T> adapt(BinaryGeometryFunction<T> func) {
 		return (wkb1, wkb2) -> {
-			Geometry geom1 = GeometryValue.deserialize(wkb1);
-			Geometry geom2 = GeometryValue.deserialize(wkb2);
+			Geometry geom1 = GeometryBean.deserialize(wkb1);
+			Geometry geom2 = GeometryBean.deserialize(wkb2);
 			return func.apply(geom1, geom2);
 		};
 	};
@@ -128,8 +133,8 @@ public class SpatialUDFs {
 	}
 	private static final <IN,T> UDF3<byte[], byte[], IN, T> adapt(Arg1BinaryGeometryFunction<IN,T> func) {
 		return (wkb1, wkb2, arg1) -> {
-			Geometry geom1 = GeometryValue.deserialize(wkb1);
-			Geometry geom2 = GeometryValue.deserialize(wkb2);
+			Geometry geom1 = GeometryBean.deserialize(wkb1);
+			Geometry geom2 = GeometryBean.deserialize(wkb2);
 			return func.apply(geom1, geom2, arg1);
 		};
 	};
@@ -139,9 +144,9 @@ public class SpatialUDFs {
 	}
 	private static final <T> UDF2<WrappedArray<Double>, T, Double[]> adapt(Arg1BoxOperator<T> optor) {
 		return (coords, arg) -> {
-			Envelope envl = EnvelopeValue.toEnvelope(coords);
+			Envelope envl = SERDE_ENVELOPE.deserialize(coords);
 			Envelope out = optor.apply(envl, arg);
-			return EnvelopeValue.toCoordinates(out);
+			return SERDE_ENVELOPE.serialize(out);
 		};
 	};
 	
@@ -151,9 +156,9 @@ public class SpatialUDFs {
 	private static final <T1, T2> UDF3<WrappedArray<Double>, T1, T2, Double[]>
 	adapt(Arg2BoxOperator<T1,T2> optor) {
 		return (coords, arg1, arg2) -> {
-			Envelope envl = EnvelopeValue.toEnvelope(coords);
+			Envelope envl = SERDE_ENVELOPE.deserialize(coords);
 			Envelope out = optor.apply(envl, arg1, arg2);
-			return EnvelopeValue.toCoordinates(out);
+			return SERDE_ENVELOPE.serialize(out);
 		};
 	};
 	
@@ -162,7 +167,7 @@ public class SpatialUDFs {
 	}
 	private static final <T> UDF1<WrappedArray<Double>, T> adapt(BoxFunction<T> optor) {
 		return (coords) -> {
-			Envelope envl = EnvelopeValue.from(coords).asEnvelope();
+			Envelope envl = EnvelopeBean.deserialize(coords);
 			return optor.apply(envl);
 		};
 	};
@@ -174,6 +179,7 @@ public class SpatialUDFs {
 		registry.register("ST_Boundary", adapt(ST_Boundary), GeometryType.DATA_TYPE);
 		registry.register("ST_Buffer", adapt(ST_Buffer), GeometryType.DATA_TYPE);
 		registry.register("ST_Centroid", adapt(ST_Centroid), GeometryType.DATA_TYPE);
+		registry.register("ST_ReducePrecision", adapt(ST_ReducePrecision), GeometryType.DATA_TYPE);
 		registry.register("ST_Contains", adapt(ST_Contains), DataTypes.BooleanType);
 		registry.register("ST_ConvexHull", adapt(ST_ConvexHull), GeometryType.DATA_TYPE);
 		registry.register("ST_CoordDim", adapt(ST_CoordDim), DataTypes.IntegerType);
@@ -198,6 +204,10 @@ public class SpatialUDFs {
 		registry.register("ST_Intersection", adapt(ST_Intersection), GeometryType.DATA_TYPE);
 		registry.register("ST_Intersects", adapt(ST_Intersects), DataTypes.BooleanType);
 		registry.register("ST_IntersectsGeom", adapt(ST_IntersectsGeom), DataTypes.BooleanType);
+
+		// kwlee
+		registry.register("TEST_Intersects", adapt(TEST_Intersects), DataTypes.BooleanType);
+		
 		registry.register("ST_IsClosed", adapt(ST_IsClosed), DataTypes.BooleanType);
 		registry.register("ST_IsRing", adapt(ST_IsRing), DataTypes.BooleanType);
 		registry.register("ST_IsSimple", adapt(ST_IsSimple), DataTypes.BooleanType);
@@ -245,11 +255,12 @@ public class SpatialUDFs {
 		registry.register("ST_Y", adapt(ST_Y), DataTypes.DoubleType);
 //		registry.register("ST_Z", adapt(ST_Z), DataTypes.DoubleType);
 		
-		registry.register("Box2D", adapt(Box2D), EnvelopeValue.DATA_TYPE);
-		registry.register("ST_ExpandBox1", adapt(ST_ExpandBox1), EnvelopeValue.DATA_TYPE);
-		registry.register("ST_ExpandBox2", adapt(ST_ExpandBox2), EnvelopeValue.DATA_TYPE);
-		registry.register("ST_TransformBox", adapt(ST_TransformBox), EnvelopeValue.DATA_TYPE);
-		registry.register("ST_BoxIntersects", ST_BoxIntersects, DataTypes.BooleanType);
+		registry.register("Box2D", adapt(Box2D), EnvelopeBean.DATA_TYPE);
+		registry.register("ST_ExpandBox1", adapt(ST_ExpandBox1), EnvelopeBean.DATA_TYPE);
+		registry.register("ST_ExpandBox2", adapt(ST_ExpandBox2), EnvelopeBean.DATA_TYPE);
+		registry.register("ST_TransformBox", adapt(ST_TransformBox), EnvelopeBean.DATA_TYPE);
+		registry.register("ST_BoxIntersectsBox", ST_BoxIntersectsBox, DataTypes.BooleanType);
+		registry.register("ST_GeomIntersectsBox", ST_GeomIntersectsBox, DataTypes.BooleanType);
 		registry.register("ST_XMin", adapt(ST_XMin), DataTypes.DoubleType);
 		registry.register("ST_XMax", adapt(ST_XMax), DataTypes.DoubleType);
 		registry.register("ST_YMin", adapt(ST_YMin), DataTypes.DoubleType);
@@ -259,20 +270,21 @@ public class SpatialUDFs {
 //		registry.register("ST_GeomFromGeoJSON", ST_GeomFromGeoJSON, GeometryRow.DATA_TYPE);
 
 		// user-defined aggregation functions
-		registry.register("ST_Accum", functions.udaf(new AccumGeometryUDAF(), AccumGeometryUDAF.INPUT_ENCODER));
+//		registry.register("ST_Accum", functions.udaf(new AccumGeometryUDAF(), AccumGeometryUDAF.INPUT_ENCODER));
 		registry.register("ST_Collect", functions.udaf(new CollectUDAF(), CollectUDAF.INPUT_ENCODER));
 		registry.register("ST_Union", functions.udaf(new UnionUDAF(), UnionUDAF.INPUT_ENCODER));
 		registry.register("ST_Extent", functions.udaf(new ExtentUDAF(), ExtentUDAF.INPUT_ENCODER));
-		registry.register("TP_BuildTemporalPoint", functions.udaf(new BuildTemporalPointUDAF(),
-																BuildTemporalPointUDAF.INPUT_ENCODER));
-		registry.register("ST_AggMakeLine", functions.udaf(new MakeLineUDAF(), AccumGeometryUDAF.INPUT_ENCODER));
+		registry.register("JV_SummarizeSpatialInfo",
+						functions.udaf(new SummarizeSpatialInfoUDAF(), SummarizeSpatialInfoUDAF.INPUT_ENCODER));
+		registry.register("ST_AggMakeLine", functions.udaf(new MakeLineUDAF(), MakeLineUDAF.INPUT_ENCODER));
 //		registry.register("ST_MemUnion", new UnionGeomUDAF());
 //		registry.register("ST_Polygonize", new UnionGeomUDAF());
 		
 		registry.register("JV_Qkey", adapt(JV_Qkey), DataTypes.StringType);
 		registry.register("JV_AttachQuadMembers", JV_AttachQuadMembers,
-							JarveyDataTypes.LongArrayType.getSparkType());
+							JarveyDataTypes.LongArray_Type.getSparkType());
 		registry.register("JV_IsValidEnvelope", adapt(JV_IsValidEnvelope), DataTypes.BooleanType);
+		registry.register("JV_IsValidWgs84Geometry", adapt(JV_IsValidWgs84Geometry), DataTypes.BooleanType);
 		registry.register("JV_QKeyIntersects", JV_QKeyIntersects, DataTypes.BooleanType);
 	}
 	
@@ -283,6 +295,15 @@ public class SpatialUDFs {
 	private static final Arg1GeometryOperator<Double> ST_Buffer = (geom, dist) -> (geom != null) ? geom.buffer(dist) : null;
 	
 	private static final GeometryOperator ST_Centroid = (geom) -> (geom != null) ? geom.getCentroid() : null;
+	private static final Arg1GeometryOperator<Integer> ST_ReducePrecision = (geom, factor) -> {
+		if ( geom != null ) {
+			GeometryPrecisionReducer reducer = GeoClientUtils.toGeometryPrecisionReducer(factor);
+			return reducer.reduce(geom);
+		}
+		else {
+			return null;
+		}
+	};
 	private static final BinaryGeometryFunction<Boolean> ST_Contains
 						= (geom1, geom2) -> (geom1 != null && geom2 != null) ? geom1.contains(geom2) : false;
 	
@@ -503,8 +524,17 @@ public class SpatialUDFs {
 		return GeometryUtils.toLineString(start, end);
 	};
 	private static final UDF1<WrappedArray<byte[]>,byte[]> ST_MakeLineA = (wkbArray) -> {
-		GeometryArrayValue rows = GeometryArrayValue.from(wkbArray);
-		return MakeLineUDAF.makeLine(rows).getWkb();
+		byte[][] wkbs = new byte[wkbArray.length()][];
+		for ( int i =0; i < wkbs.length; ++i ) {
+			wkbs[i] = wkbArray.apply(i);
+		}
+		GeometryArrayBean rows = new GeometryArrayBean(wkbs);
+		Coordinate[] coords = FStream.of(rows.asGeometries())
+									.cast(Point.class)
+									.map(Point::getCoordinate)
+									.toArray(Coordinate.class);
+		LineString line = GeometryUtils.toLineString(coords);
+		return GeometryBean.serialize(line);
 	};
 	
 	private static final GeometryFunction<Integer> ST_NumGeometries = geom -> (geom != null) ? geom.getNumGeometries() : null;
@@ -547,7 +577,7 @@ public class SpatialUDFs {
 			double ypos = DataUtils.asDouble(yCol);
 			
 			Point pt = GeometryUtils.toPoint(xpos, ypos);
-			return GeometryValue.serialize(pt);
+			return GeometryBean.serialize(pt);
 		}
 		else {
 			return null;
@@ -668,7 +698,10 @@ public class SpatialUDFs {
 */
 	
 	private static final GeometryFunction<Double> ST_X = geom -> {
-		if ( geom != null && geom instanceof Point ) {
+		if ( geom == null || geom.isEmpty() ) {
+			return null;
+		}
+		else if ( geom instanceof Point ) {
 			return ((Point)geom).getX();
 		}
 		else {
@@ -678,7 +711,10 @@ public class SpatialUDFs {
 	private static final BoxFunction<Double> ST_XMax = Envelope::getMaxX;
 	private static final BoxFunction<Double> ST_XMin = Envelope::getMinX;
 	private static final GeometryFunction<Double> ST_Y = geom -> {
-		if ( geom instanceof Point ) {
+		if ( geom == null || geom.isEmpty() ) {
+			return null;
+		}
+		else if ( geom instanceof Point ) {
 			return ((Point)geom).getY();
 		}
 		else {
@@ -690,7 +726,7 @@ public class SpatialUDFs {
 	
 	private static final GeometryFunction<Double[]> Box2D = (geom) -> {
 		Envelope envl = (geom != null) ? geom.getEnvelopeInternal() : null;
-		return EnvelopeValue.toCoordinates(envl);
+		return SERDE_ENVELOPE.serialize(envl);
 	};
 	
 	
@@ -707,7 +743,7 @@ public class SpatialUDFs {
 	private static ThreadLocal<Map<Tuple<Integer,Integer>, CoordinateTransform>> TRANSFORM_CACHE
 																					= new ThreadLocal<>();
 	private static final UDF3<byte[],Integer,Integer,byte[]> ST_Transform = (wkb, fromSrid, toSrid) -> {
-		Geometry geom = GeometryValue.deserialize(wkb);
+		Geometry geom = GeometryBean.deserialize(wkb);
 		if ( geom == null ) {
 			return null;
 		}
@@ -725,7 +761,7 @@ public class SpatialUDFs {
 			}
 			
 			Geometry transformed = trans.transform(geom);
-			return GeometryValue.serialize(transformed);
+			return GeometryBean.serialize(transformed);
 		}
 	};
 	
@@ -785,14 +821,15 @@ public class SpatialUDFs {
 	};
 */
 	
-	private static final Long[] OUTLIER_MEMBERS = new Long[]{SpatialDataset.QID_OUTLIER};
+	private static final Long[] OUTLIER_MEMBERS = new Long[]{MapTile.OUTLIER_QID};
 	private static final UDF2<WrappedArray<Double>,WrappedArray<Long>,Long[]>
 	JV_AttachQuadMembers = (coords, candidates) -> {
-		Envelope envl = EnvelopeValue.toEnvelope(coords);
+		Envelope envl = SERDE_ENVELOPE.deserialize(coords);
 		if ( envl != null ) {
-			Long[] qids = ArrayType.unwrapLongArray(candidates);
+			long[] qids = JarveyArrayType.unwrapLongArray(candidates);
 			Coordinate refPt = envl.centre();
 			Long[] members = FStream.of(qids)
+									.filter(q -> q != MapTile.OUTLIER_QID)
 									.map(MapTile::fromQuadId)
 									.filter(tile -> tile.intersects(envl))
 									.map(tile -> tile.contains(refPt)
@@ -807,7 +844,14 @@ public class SpatialUDFs {
 			return OUTLIER_MEMBERS;
 		}
 	};
-	
+
+	private static final GeometryFunction<Boolean> JV_IsValidWgs84Geometry = (geom) -> {
+		return !FStream.of(geom.getCoordinates())
+						.exists(coord -> {
+							return coord.x < -180 || coord.x > 180
+								|| coord.y < -85 || coord.y > 85;
+						});
+	};
 	private static final BoxFunction<Boolean> JV_IsValidEnvelope = (envl) -> {
 		if ( envl != null ) {
 			return envl.getMinY() >= -85 && envl.getMaxY() <= 85
@@ -823,7 +867,7 @@ public class SpatialUDFs {
 			return MapTile.getSmallestContainingTile(envl, 31).getQuadKey();
 		}
 		else {
-			return SpatialDataset.QKEY_OUTLIER;
+			return MapTile.OUTLIER_QKEY;
 		}
 	};
 	
@@ -838,11 +882,33 @@ public class SpatialUDFs {
 	};
 	
 	private static final UDF2<WrappedArray<Double>,WrappedArray<Double>,Boolean>
-	ST_BoxIntersects = (coords1, coords2) -> {
-		Envelope envl1 = EnvelopeValue.toEnvelope(coords1); 
-		Envelope envl2 = EnvelopeValue.toEnvelope(coords2); 
+	ST_BoxIntersectsBox = (coords1, coords2) -> {
+		Envelope envl1 = SERDE_ENVELOPE.deserialize(coords1); 
+		Envelope envl2 = SERDE_ENVELOPE.deserialize(coords2); 
 		if ( envl1 != null && envl2 != null ) {
 			return envl1.intersects(envl2);
+		}
+		else {
+			return false;
+		}
+	};
+	
+	private static final UDF2<byte[],WrappedArray<Double>,Boolean> ST_GeomIntersectsBox = (wkb, coords) -> {
+		Geometry geom = GeoClientUtils.fromWKB(wkb);
+		Envelope range = SERDE_ENVELOPE.deserialize(coords); 
+		if ( geom != null && range != null ) {
+			if ( geom instanceof Point ) {
+				return range.contains(geom.getCoordinate());
+			}
+			else {
+				Envelope envl = geom.getEnvelopeInternal();
+				if ( envl.intersects(range) ) {
+					return geom.intersects(GeometryUtils.toPolygon(range));
+				}
+				else {
+					return false;
+				}
+			}
 		}
 		else {
 			return false;
@@ -861,6 +927,28 @@ public class SpatialUDFs {
 		}
 		else {
 			return false;
+		}
+	};
+	
+	private static final Arg1GeometryFunction<byte[],Boolean> TEST_Intersects = (geom, wkb) -> {
+		if ( geom == null ) {
+			return false;
+		}
+		
+		try {
+			Geometry arg = GeoClientUtils.fromWKB(wkb);
+			if ( !geom.intersects(arg) ) {
+				return false;
+			}
+
+			GeometryPrecisionReducer reducer = GeoClientUtils.toGeometryPrecisionReducer(2);
+			geom = reducer.reduce(geom);
+			geom = geom.intersection(arg);
+			double area = geom.getArea();
+			return area > 5;
+		}
+		catch ( ParseException e ) {
+			throw new JarveyRuntimeException("fails to parse WKB: cause=" + e);
 		}
 	};
 }

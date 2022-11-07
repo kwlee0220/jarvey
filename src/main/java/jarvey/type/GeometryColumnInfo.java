@@ -5,6 +5,8 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.geotools.geometry.jts.Geometries;
+
 import utils.Utilities;
 
 /**
@@ -14,25 +16,34 @@ import utils.Utilities;
 public final class GeometryColumnInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private static final Pattern PATTERN = Pattern.compile("(\\S+)\\s*\\(\\s*([0-9]+)?\\s*\\)");
+//	private static final Pattern PATTERN = Pattern.compile("(\\S+)\\s*\\(\\s*([0-9]+)?\\s*\\)");
+	private static final Pattern PATTERN = Pattern.compile("(\\S+)\\s*\\((\\S+)\\s*:\\s*([0-9]+)?\\s*\\)");
 	
 	private final String m_name;
-	private final int m_srid;
+	private final GeometryType m_type;
 	
-	public GeometryColumnInfo(String colName, int srid) {
-		Utilities.checkNotNullArgument(colName, "column name");
-		Utilities.checkNotNullArgument(srid, "SRID");
+	public GeometryColumnInfo(String colName, GeometryType colType) {
+		Utilities.checkNotNullArgument(colName, "Geometry column name");
+		Utilities.checkNotNullArgument(colType, "Geometry type");
 		
 		m_name = colName;
-		m_srid = srid;
+		m_type = colType;
 	}
 	
-	public final String name() {
+	public final String getName() {
 		return m_name;
 	}
 	
-	public final int srid() {
-		return m_srid;
+	public final GeometryType getDataType() {
+		return m_type;
+	}
+	
+	public final int getSrid() {
+		return m_type.getSrid();
+	}
+	
+	public final Geometries getGeometries() {
+		return m_type.getGeometries();
 	}
 	
 	@Override
@@ -46,12 +57,12 @@ public final class GeometryColumnInfo implements Serializable {
 		
 		GeometryColumnInfo other = (GeometryColumnInfo)obj;
 		return m_name.equalsIgnoreCase(other.m_name)
-			&& Objects.equals(m_srid, other.m_srid);
+				&& Objects.equals(m_type, other.m_type);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(m_name.toLowerCase(), m_srid);
+		return Objects.hash(m_name.toLowerCase(), m_type);
 	}
 	
 	public static GeometryColumnInfo fromString(String str) {
@@ -60,12 +71,15 @@ public final class GeometryColumnInfo implements Serializable {
 			throw new IllegalArgumentException(String.format("invalid: '%s'", str));
 		}
 		
-		int srid = (matcher.groupCount() == 2 ) ? Integer.parseInt(matcher.group(2)) : 0;
-		return new GeometryColumnInfo(matcher.group(1), srid);
+		String geomName = matcher.group(1);
+		String geomTypeStr = matcher.group(2);
+		int srid = (matcher.groupCount() == 3 ) ? Integer.parseInt(matcher.group(3)) : 0;
+		GeometryType geomType = GeometryType.fromString(geomTypeStr, srid);
+		return new GeometryColumnInfo(geomName, geomType);
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("%s(%d)", m_name, m_srid);
+		return String.format("%s(%s:%d)", m_name, m_type.getGeometries(), m_type.getSrid());
 	}
 }

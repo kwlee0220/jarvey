@@ -48,11 +48,11 @@ public class DataUtils {
 		if ( obj == null ) {
 			return 0;
 		}
-		if ( obj instanceof Integer ) {
-			return ((Integer)obj).intValue();
-		}
 		if ( obj instanceof Long ) {
 			return ((Long)obj).longValue();
+		}
+		if ( obj instanceof Integer ) {
+			return ((Integer)obj).intValue();
 		}
 		if ( obj instanceof Short ) {
 			return ((Short)obj).shortValue();

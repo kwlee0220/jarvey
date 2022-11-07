@@ -6,7 +6,8 @@ import java.util.Map;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 
-import avro.shaded.com.google.common.collect.Maps;
+import com.google.common.collect.Maps;
+
 import utils.CIString;
 
 /**
@@ -20,13 +21,13 @@ public final class JarveyColumn implements Serializable {
 	private final CIString m_name;
 	private final JarveyDataType m_type;
 	
-	JarveyColumn(int index, String name, JarveyDataType jtype) {
+	public JarveyColumn(int index, String name, JarveyDataType jtype) {
 		m_index = index;
 		m_name = CIString.of(name);
 		m_type = jtype;
 	}
 	
-	JarveyColumn(int index, CIString name, JarveyDataType jtype) {
+	public JarveyColumn(int index, CIString name, JarveyDataType jtype) {
 		m_index = index;
 		m_name = name;
 		m_type = jtype;
@@ -54,7 +55,7 @@ public final class JarveyColumn implements Serializable {
 	
 	static JarveyColumn fromYaml(int index, Map<String,Object> yaml) {
 		String name = (String)yaml.get("name");
-		JarveyDataType jtype = JarveyDataType.fromString((String)yaml.get("type"));
+		JarveyDataType jtype = JarveyDataTypes.fromString((String)yaml.get("type"));
 		return new JarveyColumn(index, CIString.of(name), jtype);
 	}
 	
@@ -69,6 +70,6 @@ public final class JarveyColumn implements Serializable {
 	
 	@Override
 	public String toString() {
-		return String.format("%s %s", m_name, m_type);
+		return String.format("[%d]: %s %s", m_index, m_name, m_type);
 	}
 }

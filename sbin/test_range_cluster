@@ -1,0 +1,3 @@
+#!	/bin/bash
+
+spark-submit --class jarvey.test.TestRangeQuery --master yarn --deploy-mode client --driver-memory 7g --num-executors 50 --executor-memory 7g $JARVEY_HOME/sbin/jarvey.jar "$@"

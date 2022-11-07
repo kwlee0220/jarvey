@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss,SSS} %-5p [%-21c] %m (%F:%L)%n"/>
+<!--
+			<PatternLayout pattern="%d{HH:mm:ss,SSS} %-5p [%-21c{2}] %m (%F:%L)%n"/>
+-->
+		</Console>
+		<RollingFile name="File" fileName="./logs/jarvey.streams.log"
+								filePattern="./logs/jarvey.streams-%d{yyyy-MM-dd}-%i.log">
+			<PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8"/>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"/>
+				<SizeBasedTriggeringPolicy size="10000KB"/>
+			</Policies>
+			<DefaultRolloverStrategy max="20" fileIndex="min"/>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Logger name="org.apache.kafka" level="warn"/>
+		<Logger name="org.apache.spark" level="warn"/>
+		<Logger name="org.apache.parquet" level="warn"/>
+		<Logger name="org.apache.hadoop.io.compress" level="warn"/>
+		<Logger name="org.apache.hadoop.mapreduce" level="warn"/>
+		<Logger name="org.apache.hadoop.hive" level="warn"/>
+<!--
+		<Logger name="org.apache.spark.scheduler" level="warn"/>
+		<Logger name="org.apache.spark.storage" level="warn"/>
+		<Logger name="org.apache.spark.SparkEnv" level="warn"/>
+		<Logger name="org.apache.spark.SparkContext" level="warn"/>
+		<Logger name="org.apache.spark.SecurityManager" level="warn"/>
+		<Logger name="org.apache.spark.MapOutputTrackerMasterEndpoint" level="warn"/>
+		<Logger name="org.apache.spark.sql.execution" level="warn"/>
+		<Logger name="org.apache.spark.sql.internal" level="warn"/>
+		<Logger name="org.apache.spark.sql.catalyst" level="warn"/>
+		<Logger name="org.apache.spark.resource" level="warn"/>
+		<Logger name="org.apache.spark.executor" level="warn"/>
+		<Logger name="org.apache.spark.network" level="warn"/>
+		<Logger name="org.apache.spark.util" level="warn"/>
+		<Logger name="org.apache.spark.ui" level="warn"/>
+-->
+		<Logger name="org.sparkproject.jetty" level="warn"/>
+		<Logger name="org.geotools.referencing.factory" level="warn"/>
+		<Logger name="hsqldb.db.HSQLDB6BD103EBD8.ENGINE" level="warn"/>
+		
+		<Logger name="jarvey" level="info"/>
+		<Logger name="jarvey.datasource.shp.ShapefileReader" level="warn"/>
+		<Root level="info">
+			<AppenderRef ref="STDOUT"/>
+		</Root>
+	</Loggers>
+</Configuration>

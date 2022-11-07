@@ -1,13 +1,16 @@
 package jarvey.command;
 
+import jarvey.FilePath;
 import jarvey.JarveySession;
 import jarvey.cluster.ClusterDataset;
 import jarvey.cluster.ClusterDatasetOptions;
+import jarvey.cluster.SpatialClusterFile;
+import jarvey.cluster.SpatialPartitionFile;
 import jarvey.type.JarveySchema;
+
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import utils.StopWatch;
 import utils.UnitUtils;
 
 /**
@@ -21,10 +24,9 @@ import utils.UnitUtils;
 public class ClusterDatasetMain extends JarveyCommand {
 	@Parameters(paramLabel="id", index="0", arity="1..1", description={"dataset id"})
 	private String m_dsId;
-	
-	@Parameters(paramLabel="output_dataset", index="1", arity="0..1",
-				description={"output dataset id"})
-	private String m_outDsId = null;
+
+//	@Option(names= {"--create_index"}, description="create index file")
+//	private boolean m_createIndex = false;
 
 	@Option(names= {"--ref_dataset"}, paramLabel="dataset_id", description="reference dataset id")
 	private void setReferenceDataset(String dsId) {
@@ -38,7 +40,7 @@ public class ClusterDatasetMain extends JarveyCommand {
 	}
 	private double m_sampleRatio = -1;
 
-	@Option(names= {"--cluster_size"}, paramLabel="size", description="cluster size (default: '128mb')")
+	@Option(names= {"--cluster_size"}, paramLabel="size", description="cluster size hint (default: '128mb')")
 	private void setClusterSize(String sizeStr) {
 		m_clusterSize = UnitUtils.parseByteSize(sizeStr);
 	}
@@ -53,26 +55,51 @@ public class ClusterDatasetMain extends JarveyCommand {
 	
 	@Override
 	protected void run(JarveySession jarvey) throws Exception {
-		StopWatch watch = StopWatch.start();
-		
-		ClusterDatasetOptions opts = ClusterDatasetOptions.create()
-														.force(m_force);
+		ClusterDatasetOptions opts = ClusterDatasetOptions.create().force(m_force);
 		if ( m_refDsId != null ) {
-			JarveySchema jschema = jarvey.loadJarveySchema(m_refDsId);
-			opts = opts.candidateQuadIds(jschema.getQuadIds());
+			FilePath clusterPath = jarvey.getClusterFilePath(m_refDsId);
+			long[] qids = SpatialClusterFile.of(jarvey, clusterPath)
+											.streamPartitions(true)
+											.mapToLong(SpatialPartitionFile::getQuadId)
+											.toArray();
+			opts = opts.candidateQuadIds(qids);
 		}
-		if ( m_clusterSize > 0 ) {
-			opts = opts.clusterSizeHint(m_clusterSize);
+		else {
+			if ( m_sampleRatio > 0 ) {
+				opts = opts.sampleRatio(m_sampleRatio);
+			}
+			if ( m_clusterSize > 0 ) {
+				opts = opts.clusterSizeHint(m_clusterSize);
+			}
+			if ( m_refDsId != null ) {
+				JarveySchema jschema = jarvey.loadJarveySchema(m_refDsId);
+				opts = opts.candidateQuadIds(jschema.getQuadIds());
+			}
 		}
-		if ( m_sampleRatio > 0 ) {
-			opts = opts.sampleRatio(m_sampleRatio);
-		}
-		String outDsId = (m_outDsId != null) ? m_outDsId : m_dsId + "_clustered";
 		
-		ClusterDataset cluster = new ClusterDataset(jarvey, m_dsId, outDsId, opts);
+		ClusterDataset cluster = new ClusterDataset(jarvey, m_dsId, opts);
 		cluster.call();
 		
-		System.out.printf("clustered: dataset=%s elapsed=%s%n",
-							m_dsId, watch.getElapsedMillisString());
+//		if ( m_createIndex ) {
+//			List<Long> values = scFile.streamPartitions(true)
+//											.map(sp -> sp.getQuadId()) 
+//											.toList();
+//			Dataset<Row> qidDf = jarvey.parallelize(values, Long.class);
+//			
+//			jarvey.getFilePath(outDsId)
+//			
+//			
+//		JavaSparkContext jsc = new JavaSparkContext(jarvey.spark().sparkContext());
+//		JavaRDD<Object[]> jrdd = jsc.parallelize(values);
+//		
+//		Dataset<Row> df = jarvey.spark().createDataFrame(jrdd, Long.class);
+//		
+//		JarveySchema.builder()
+//					.addRegularColumn("quadid", DataTypes.LongType)
+//					.addRegularColumn("quadkey", DataTypes.StringType)
+//					.build();
+//		
+//		
+//		jarvey.read().dataset(m_outDsId);
 	}
 }

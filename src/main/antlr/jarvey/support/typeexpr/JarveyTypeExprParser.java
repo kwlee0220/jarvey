@@ -23,8 +23,8 @@ public class JarveyTypeExprParser extends Parser {
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
 		T__17=18, T__18=19, T__19=20, T__20=21, T__21=22, T__22=23, T__23=24, 
 		T__24=25, T__25=26, T__26=27, T__27=28, T__28=29, T__29=30, T__30=31, 
-		T__31=32, T__32=33, ID=34, INT=35, STRING=36, LINE_COMMENT=37, COMMENT=38, 
-		WS=39;
+		T__31=32, T__32=33, T__33=34, T__34=35, T__35=36, ID=37, INT=38, STRING=39, 
+		LINE_COMMENT=40, COMMENT=41, WS=42;
 	public static final int
 		RULE_columnExprList = 0, RULE_columnExpr = 1, RULE_typeExpr = 2, RULE_geomtryTypeExpr = 3, 
 		RULE_sridSpec = 4, RULE_nullSpec = 5;
@@ -40,10 +40,11 @@ public class JarveyTypeExprParser extends Parser {
 		return new String[] {
 			null, "','", "'not'", "'null'", "'String'", "'Long'", "'Integer'", "'Int'", 
 			"'Short'", "'Byte'", "'Double'", "'Float'", "'Binary'", "'Boolean'", 
-			"'Date'", "'Timestamp'", "'CalendarInterval'", "'Envelope'", "'Array'", 
-			"'<'", "'>'", "'Geometry'", "'Point'", "'MultiPoint'", "'LineString'", 
-			"'MultiLineString'", "'Polygon'", "'MultiPolygon'", "'GeometryCollection'", 
-			"'('", "')'", "'nullable'", "'non-null'", "'not-null'"
+			"'Date'", "'Timestamp'", "'CalendarInterval'", "'Envelope'", "'GridCell'", 
+			"'Vector'", "'TemporalPoint'", "'Array'", "'<'", "'>'", "'Geometry'", 
+			"'Point'", "'MultiPoint'", "'LineString'", "'MultiLineString'", "'Polygon'", 
+			"'MultiPolygon'", "'GeometryCollection'", "'('", "')'", "'nullable'", 
+			"'non-null'", "'not-null'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -51,8 +52,8 @@ public class JarveyTypeExprParser extends Parser {
 		return new String[] {
 			null, null, null, null, null, null, null, null, null, null, null, null, 
 			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, "ID", "INT", 
-			"STRING", "LINE_COMMENT", "COMMENT", "WS"
+			null, null, null, null, null, null, null, null, null, null, null, null, 
+			null, "ID", "INT", "STRING", "LINE_COMMENT", "COMMENT", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -243,7 +244,7 @@ public class JarveyTypeExprParser extends Parser {
 		enterRule(_localctx, 4, RULE_typeExpr);
 		int _la;
 		try {
-			setState(53);
+			setState(56);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__3:
@@ -337,14 +338,14 @@ public class JarveyTypeExprParser extends Parser {
 				match(T__15);
 				}
 				break;
-			case T__20:
-			case T__21:
-			case T__22:
 			case T__23:
 			case T__24:
 			case T__25:
 			case T__26:
 			case T__27:
+			case T__28:
+			case T__29:
+			case T__30:
 				enterOuterAlt(_localctx, 14);
 				{
 				setState(39);
@@ -352,7 +353,7 @@ public class JarveyTypeExprParser extends Parser {
 				setState(41);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (_la==T__28) {
+				if (_la==T__31) {
 					{
 					setState(40);
 					sridSpec();
@@ -373,24 +374,45 @@ public class JarveyTypeExprParser extends Parser {
 				{
 				setState(44);
 				match(T__17);
+				}
+				break;
+			case T__18:
+				enterOuterAlt(_localctx, 17);
+				{
 				setState(45);
 				match(T__18);
+				}
+				break;
+			case T__19:
+				enterOuterAlt(_localctx, 18);
+				{
 				setState(46);
-				typeExpr();
+				match(T__19);
+				}
+				break;
+			case T__20:
+				enterOuterAlt(_localctx, 19);
+				{
+				setState(47);
+				match(T__20);
+				setState(48);
+				match(T__21);
 				setState(49);
+				typeExpr();
+				setState(52);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==T__0) {
 					{
-					setState(47);
+					setState(50);
 					match(T__0);
-					setState(48);
+					setState(51);
 					nullSpec();
 					}
 				}
 
-				setState(51);
-				match(T__19);
+				setState(54);
+				match(T__22);
 				}
 				break;
 			default:
@@ -427,9 +449,9 @@ public class JarveyTypeExprParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(55);
+			setState(58);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__25) | (1L << T__26) | (1L << T__27))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__23) | (1L << T__24) | (1L << T__25) | (1L << T__26) | (1L << T__27) | (1L << T__28) | (1L << T__29) | (1L << T__30))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -469,12 +491,12 @@ public class JarveyTypeExprParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(57);
-			match(T__28);
-			setState(58);
+			setState(60);
+			match(T__31);
+			setState(61);
 			match(INT);
-			setState(59);
-			match(T__29);
+			setState(62);
+			match(T__32);
 			}
 		}
 		catch (RecognitionException re) {
@@ -507,9 +529,9 @@ public class JarveyTypeExprParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(61);
+			setState(64);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__30) | (1L << T__31) | (1L << T__32))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__33) | (1L << T__34) | (1L << T__35))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -531,25 +553,26 @@ public class JarveyTypeExprParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3)B\4\2\t\2\4\3\t\3"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3,E\4\2\t\2\4\3\t\3"+
 		"\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\3\2\3\2\3\2\7\2\22\n\2\f\2\16\2\25\13"+
 		"\2\3\3\3\3\3\3\3\3\5\3\33\n\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4"+
-		"\3\4\3\4\3\4\3\4\3\4\5\4,\n\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4\64\n\4\3\4\3"+
-		"\4\5\48\n\4\3\5\3\5\3\6\3\6\3\6\3\6\3\7\3\7\3\7\2\2\b\2\4\6\b\n\f\2\4"+
-		"\3\2\27\36\3\2!#\2N\2\16\3\2\2\2\4\26\3\2\2\2\6\67\3\2\2\2\b9\3\2\2\2"+
-		"\n;\3\2\2\2\f?\3\2\2\2\16\23\5\4\3\2\17\20\7\3\2\2\20\22\5\4\3\2\21\17"+
-		"\3\2\2\2\22\25\3\2\2\2\23\21\3\2\2\2\23\24\3\2\2\2\24\3\3\2\2\2\25\23"+
-		"\3\2\2\2\26\27\7$\2\2\27\32\5\6\4\2\30\31\7\4\2\2\31\33\7\5\2\2\32\30"+
-		"\3\2\2\2\32\33\3\2\2\2\33\5\3\2\2\2\348\7\6\2\2\358\7\7\2\2\368\7\b\2"+
-		"\2\378\7\t\2\2 8\7\n\2\2!8\7\13\2\2\"8\7\f\2\2#8\7\r\2\2$8\7\16\2\2%8"+
-		"\7\17\2\2&8\7\20\2\2\'8\7\21\2\2(8\7\22\2\2)+\5\b\5\2*,\5\n\6\2+*\3\2"+
-		"\2\2+,\3\2\2\2,8\3\2\2\2-8\7\23\2\2./\7\24\2\2/\60\7\25\2\2\60\63\5\6"+
-		"\4\2\61\62\7\3\2\2\62\64\5\f\7\2\63\61\3\2\2\2\63\64\3\2\2\2\64\65\3\2"+
-		"\2\2\65\66\7\26\2\2\668\3\2\2\2\67\34\3\2\2\2\67\35\3\2\2\2\67\36\3\2"+
-		"\2\2\67\37\3\2\2\2\67 \3\2\2\2\67!\3\2\2\2\67\"\3\2\2\2\67#\3\2\2\2\67"+
-		"$\3\2\2\2\67%\3\2\2\2\67&\3\2\2\2\67\'\3\2\2\2\67(\3\2\2\2\67)\3\2\2\2"+
-		"\67-\3\2\2\2\67.\3\2\2\28\7\3\2\2\29:\t\2\2\2:\t\3\2\2\2;<\7\37\2\2<="+
-		"\7%\2\2=>\7 \2\2>\13\3\2\2\2?@\t\3\2\2@\r\3\2\2\2\7\23\32+\63\67";
+		"\3\4\3\4\3\4\3\4\3\4\5\4,\n\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4"+
+		"\67\n\4\3\4\3\4\5\4;\n\4\3\5\3\5\3\6\3\6\3\6\3\6\3\7\3\7\3\7\2\2\b\2\4"+
+		"\6\b\n\f\2\4\3\2\32!\3\2$&\2T\2\16\3\2\2\2\4\26\3\2\2\2\6:\3\2\2\2\b<"+
+		"\3\2\2\2\n>\3\2\2\2\fB\3\2\2\2\16\23\5\4\3\2\17\20\7\3\2\2\20\22\5\4\3"+
+		"\2\21\17\3\2\2\2\22\25\3\2\2\2\23\21\3\2\2\2\23\24\3\2\2\2\24\3\3\2\2"+
+		"\2\25\23\3\2\2\2\26\27\7\'\2\2\27\32\5\6\4\2\30\31\7\4\2\2\31\33\7\5\2"+
+		"\2\32\30\3\2\2\2\32\33\3\2\2\2\33\5\3\2\2\2\34;\7\6\2\2\35;\7\7\2\2\36"+
+		";\7\b\2\2\37;\7\t\2\2 ;\7\n\2\2!;\7\13\2\2\";\7\f\2\2#;\7\r\2\2$;\7\16"+
+		"\2\2%;\7\17\2\2&;\7\20\2\2\';\7\21\2\2(;\7\22\2\2)+\5\b\5\2*,\5\n\6\2"+
+		"+*\3\2\2\2+,\3\2\2\2,;\3\2\2\2-;\7\23\2\2.;\7\24\2\2/;\7\25\2\2\60;\7"+
+		"\26\2\2\61\62\7\27\2\2\62\63\7\30\2\2\63\66\5\6\4\2\64\65\7\3\2\2\65\67"+
+		"\5\f\7\2\66\64\3\2\2\2\66\67\3\2\2\2\678\3\2\2\289\7\31\2\29;\3\2\2\2"+
+		":\34\3\2\2\2:\35\3\2\2\2:\36\3\2\2\2:\37\3\2\2\2: \3\2\2\2:!\3\2\2\2:"+
+		"\"\3\2\2\2:#\3\2\2\2:$\3\2\2\2:%\3\2\2\2:&\3\2\2\2:\'\3\2\2\2:(\3\2\2"+
+		"\2:)\3\2\2\2:-\3\2\2\2:.\3\2\2\2:/\3\2\2\2:\60\3\2\2\2:\61\3\2\2\2;\7"+
+		"\3\2\2\2<=\t\2\2\2=\t\3\2\2\2>?\7\"\2\2?@\7(\2\2@A\7#\2\2A\13\3\2\2\2"+
+		"BC\t\3\2\2C\r\3\2\2\2\7\23\32+\66:";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

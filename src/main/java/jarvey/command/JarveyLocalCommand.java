@@ -1,21 +1,15 @@
 package jarvey.command;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.annotation.Nullable;
 
-import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.hadoop.fs.Path;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import utils.PicocliCommand;
-import utils.UsageHelp;
-import utils.Utilities;
-import utils.func.FOption;
 
 import jarvey.JarveySession;
 
@@ -26,6 +20,10 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.RunLast;
 import picocli.CommandLine.Spec;
+import utils.PicocliCommand;
+import utils.UsageHelp;
+import utils.Utilities;
+import utils.func.FOption;
 
 /**
  * 
@@ -43,11 +41,17 @@ public abstract class JarveyLocalCommand implements PicocliCommand<JarveySession
 	@Option(names={"-v"}, description={"verbose"})
 	protected boolean m_verbose = false;
 	
-	@Option(names={"--db_root"}, paramLabel="path", description={"HDFS path prefix"})
+	@Option(names={"--config", "-c"}, paramLabel="path", description={"HDFS configuration file path"})
+	protected String m_configPath = null;
+	
+	@Option(names={"--dataset_root", "-d"}, paramLabel="path", description={"HDFS dataset root path"})
 	protected String m_dbRootPath = null;
 	
-	@Option(names={"--nthreads"}, paramLabel="count", description={"Local thread count"})
-	protected int m_nthreads = 10;
+	@Option(names={"--master", "-m"}, paramLabel="url", description={"master-url"})
+	protected String m_master = null;
+	
+	@Option(names={"--num-executors"}, paramLabel="count", description={"Executor count"})
+	protected int m_executorCount = -1;
 	
 	@Nullable private JarveySession m_jarvey;
 	
@@ -89,12 +93,22 @@ public abstract class JarveyLocalCommand implements PicocliCommand<JarveySession
 	
 	public JarveySession getInitialContext() throws Exception {
 		if ( m_jarvey == null ) {
-			String masterStr = String.format("local[%d]", m_nthreads);
 			JarveySession.Builder builder = JarveySession.builder()
-														.appName("jarvey_application")
-														.master(masterStr);
-			if ( m_dbRootPath != null ) {
-//				builder = builder.warehouseRoot(m_dbRootPath);
+														.appName("jarvey_application");
+			if ( m_master != null ) {
+				builder = builder.master(m_master);
+			}
+			if ( m_executorCount > 0 ) {
+				builder = builder.executorCount(m_executorCount);
+			}
+			if ( m_configPath != null ) {
+				builder = builder.hadoopDatasetRoot(new Path(m_configPath), m_dbRootPath);
+			}
+			else if ( m_dbRootPath != null ) {
+				builder = builder.root(new File(m_dbRootPath));
+			}
+			else {
+				builder = builder.hadoopDatasetRoot(new Path("jarvey-hadoop.xml"), "jarvey");
 			}
 			m_jarvey = builder.getOrCreate();
 		}
@@ -106,15 +120,36 @@ public abstract class JarveyLocalCommand implements PicocliCommand<JarveySession
 	public void configureLog4j() throws IOException {
 		File confFile = new File(getHomeDir(), "log4j2.xml");
 		if ( m_verbose ) {
-			s_logger.debug("use log4j configuration from {}", confFile);
+			System.out.printf("use log4j configuration from %s\n", confFile.getAbsolutePath());
 		}
 		
-		try ( InputStream is = new FileInputStream(confFile) ) {
-			ConfigurationSource cs = new ConfigurationSource(is);
-			Configurator.initialize(null, cs);
+		File propFile = new File(getHomeDir(), "log4j.properties");
+		PropertyConfigurator.configure(propFile.getAbsolutePath());
+		if ( m_verbose ) {
+			System.out.printf("use log4j1 configuration (just for Spark) from %s\n", propFile.getAbsolutePath());
 		}
+		
+		Configurator.initialize(null, confFile.getAbsolutePath());
 		if ( s_logger.isDebugEnabled() ) {
-			s_logger.debug("use log4j configuration from {}", confFile);
+			s_logger.debug("use log4j2 configuration from {}", confFile);
+		}
+	}
+	
+	public static void configureLog4j(File homeDir, boolean verbose) throws IOException {
+		File confFile = new File(homeDir, "log4j2.xml");
+		if ( verbose ) {
+			System.out.printf("use log4j configuration from %s\n", confFile.getAbsolutePath());
+		}
+		
+		File propFile = new File(homeDir, "log4j.properties");
+		PropertyConfigurator.configure(propFile.getAbsolutePath());
+		if ( verbose ) {
+			System.out.printf("use log4j1 configuration (just for Spark) from %s\n", propFile.getAbsolutePath());
+		}
+		
+		Configurator.initialize(null, confFile.getAbsolutePath());
+		if ( s_logger.isDebugEnabled() ) {
+			s_logger.debug("use log4j2 configuration from {}", confFile);
 		}
 	}
 }

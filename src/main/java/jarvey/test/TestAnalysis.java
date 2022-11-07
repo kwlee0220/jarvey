@@ -8,7 +8,7 @@ import static org.apache.spark.sql.functions.desc;
 import static org.apache.spark.sql.functions.round;
 
 import jarvey.JarveySession;
-import jarvey.SpatialDataset;
+import jarvey.SpatialDataFrame;
 
 public class TestAnalysis {
 	public static final void main(String[] args) throws Exception {
@@ -17,7 +17,7 @@ public class TestAnalysis {
 											.master("local[5]")
 											.getOrCreate();
 		String dsId = "나비콜/일별로그";
-		SpatialDataset sds = jarvey.read().dataset(dsId);
+		SpatialDataFrame sds = jarvey.read().dataset(dsId);
 
 		sds = sds.withRegularColumn("npoints", tp_npoints(col("location")))
 				.withRegularColumn("duration", tp_duration(col("location")).divide(1000))

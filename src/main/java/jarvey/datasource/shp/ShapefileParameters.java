@@ -18,6 +18,7 @@ public class ShapefileParameters {
 	
 	@Nullable private Charset m_charset = DEFAULT_CHARSET;
 	@Nullable private FOption<Integer> m_srid = FOption.empty();
+	@Nullable private FOption<Integer> m_nparts = FOption.empty();
 	
 	public static ShapefileParameters create() {
 		return new ShapefileParameters();
@@ -27,7 +28,7 @@ public class ShapefileParameters {
 		return m_charset;
 	}
 
-	@Option(names={"--charset"}, paramLabel="charset",
+	@Option(names={"--charset", "-c"}, paramLabel="charset",
 			description={"Character encoding of the target shapefile file"})
 	public ShapefileParameters charset(String charset) {
 		Utilities.checkNotNullArgument(charset);
@@ -43,7 +44,7 @@ public class ShapefileParameters {
 		return this;
 	}
 	
-	@Option(names= {"--srid"}, paramLabel="EPSG-code", description="shapefile SRID")
+	@Option(names= {"--srid", "-s"}, paramLabel="EPSG-code", description="shapefile SRID")
 	public ShapefileParameters srid(int srid) {
 		m_srid = FOption.of(srid);
 		return this;
@@ -53,10 +54,22 @@ public class ShapefileParameters {
 		return m_srid;
 	}
 	
+	@Option(names= {"--nparts", "-n"}, paramLabel="partition count", description="shapefile partition count")
+	public ShapefileParameters paritionCount(int count) {
+		m_nparts = FOption.of(count);
+		return this;
+	}
+	
+	public FOption<Integer> paritionCount() {
+		return m_nparts;
+	}
+	
 	@Override
 	public String toString() {
 		String srcSrid = srid().map(s -> String.format(", srid=%s", s))
 								.getOrElse("");
-		return String.format("charset=%s%s", charset(), srcSrid);
+		String partCount = paritionCount().map(s -> String.format(", nparts=%d", s))
+										.getOrElse("");
+		return String.format("charset=%s%s%s", charset(), srcSrid, partCount);
 	}
 }

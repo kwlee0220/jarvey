@@ -1,0 +1,11 @@
+#!	/bin/bash
+
+log4j_setting="-Dlog4j.configuration=file:log4j.properties"
+spark-submit --class jarvey.command.DataSetMain --master yarn --deploy-mode client --driver-memory 16g	\
+							--num-executors 26 --executor-cores 2 --executor-memory 20g	\
+							--conf "spark.memory.offHeap.enabled=true" \
+							--conf "spark.memory.offHeap.size=10g" \
+							--conf "spark.driver.extraJavaOptions=${log4j_setting}"	\
+							--conf "spark.executor.extraJavaOptions=${log4j_setting}"	\
+							--files "$JARVEY_HOME/log4j.properties" \
+							$JARVEY_HOME/sbin/jarvey.jar "$@"

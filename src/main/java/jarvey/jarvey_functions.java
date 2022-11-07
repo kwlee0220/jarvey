@@ -5,40 +5,22 @@ import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.lit;
 
 import org.apache.spark.sql.Column;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 
-import jarvey.type.EnvelopeValue;
-import jarvey.type.GeometryColumnInfo;
-import jarvey.type.GeometryType;
-import jarvey.type.GeometryValue;
-import jarvey.type.JarveySchema;
-import utils.stream.FStream;
+import jarvey.type.EnvelopeType;
+import jarvey.type.GeometryBean;
+import jarvey.type.JarveyDataTypes;
 
 /**
  *
  * @author Kang-Woo Lee (ETRI)
  */
 public final class jarvey_functions {
+	private static final EnvelopeType SERDE_ENVELOPE = JarveyDataTypes.Envelope_Type;
+	
 	public static final Column the_geom() {
 		return col("the_geom");
-	}
-
-	public static final SpatialDataset spatial(JarveySession jarvey, Dataset<Row> df, GeometryColumnInfo gcInfo) {
-		JarveySchema jschema = FStream.of(df.schema().fields())
-										.foldLeft(JarveySchema.builder(), (builder, field) -> {
-											if ( field.name().equalsIgnoreCase(gcInfo.name()) ) {
-												GeometryType geomType = GeometryType.of(gcInfo.srid());
-												return builder.addJarveyColumn(field.name(), geomType);
-											}
-											else {
-												return builder.addRegularColumn(field.name(), field.dataType());
-											}
-										})
-										.build();
-		return new SpatialDataset(jarvey, df, jschema);
 	}
 	
 	public static final Column ST_Area(Column geomCol) {
@@ -87,9 +69,6 @@ public final class jarvey_functions {
 	public static final Column ST_IsValid(Column geomCol) {
 		return callUDF("ST_IsValid", geomCol);
 	}
-	public static final Column ST_IsValidEnvelope(Column boxCol) {
-		return callUDF("JV_IsValidEnvelope", boxCol);
-	}
 
 	public static final Column ST_Point(Column xCol, Column yCol) {
 		return callUDF("ST_Point", xCol, yCol);
@@ -99,6 +78,9 @@ public final class jarvey_functions {
 	}
 	public static final Column ST_Centroid(Column geomCol) {
 		return callUDF("ST_Centroid", geomCol);
+	}
+	public static final Column ST_ReducePrecision(Column geomCol, int factor) {
+		return callUDF("ST_ReducePrecision", geomCol, lit(factor));
 	}
 	public static final Column ST_StartPoint(Column geomCol) {
 		return callUDF("ST_StartPoint", geomCol);
@@ -136,13 +118,13 @@ public final class jarvey_functions {
 		return callUDF("ST_Contains", leftGeomCol, rightGeomCol);
 	}
 	public static final Column ST_Contains(Column leftGeomCol, Geometry rightGeom) {
-		return ST_Contains(leftGeomCol, lit(GeometryValue.serialize(rightGeom)));
+		return ST_Contains(leftGeomCol, lit(GeometryBean.serialize(rightGeom)));
 	}
 	public static final Column ST_Intersects(Column leftGeomCol, Column rightGeomCol) {
 		return callUDF("ST_Intersects", leftGeomCol, rightGeomCol);
 	}
 	public static final Column ST_Intersects(Column leftGeomCol, Geometry rightGeom) {
-		return ST_Intersects(leftGeomCol, lit(GeometryValue.serialize(rightGeom)));
+		return ST_Intersects(leftGeomCol, lit(GeometryBean.serialize(rightGeom)));
 	}
 	public static final Column ST_Crosses(Column leftGeomCol, Column rightGeomCol) {
 		return callUDF("ST_Crosses", leftGeomCol, rightGeomCol);
@@ -151,31 +133,43 @@ public final class jarvey_functions {
 		return callUDF("ST_Equals", leftGeomCol, rightGeomCol);
 	}
 	public static final Column ST_Equals(Column leftGeomCol, Geometry rightGeom) {
-		return callUDF("ST_Equals", leftGeomCol, lit(GeometryValue.serialize(rightGeom)));
+		return callUDF("ST_Equals", leftGeomCol, lit(GeometryBean.serialize(rightGeom)));
 	}
 	public static final Column ST_Intersection(Column leftGeomCol, Column rightGeomCol) {
 		return callUDF("ST_Intersection", leftGeomCol, rightGeomCol);
 	}
 	public static final Column ST_Intersection(Column leftGeomCol, Geometry rightGeom) {
-		return ST_Intersection(leftGeomCol, lit(GeometryValue.serialize(rightGeom)));
+		return ST_Intersection(leftGeomCol, lit(GeometryBean.serialize(rightGeom)));
 	}
 	public static final Column ST_Difference(Column leftGeomCol, Column rightGeomCol) {
 		return callUDF("ST_Difference", leftGeomCol, rightGeomCol);
 	}
 	public static final Column ST_Difference(Column leftGeomCol, Geometry rightGeom) {
-		return ST_Difference(leftGeomCol, lit(GeometryValue.serialize(rightGeom)));
+		return ST_Difference(leftGeomCol, lit(GeometryBean.serialize(rightGeom)));
+	}
+	
+	// kwlee
+	public static final Column TEST_Intersects(Column leftGeomCol, Geometry rightGeom) {
+		return callUDF("TEST_Intersects", leftGeomCol, lit(GeometryBean.serialize(rightGeom)));
 	}
 
 	
 	public static final Column ST_Box2d(Column geomCol) {
 		return callUDF("Box2D", geomCol);
 	}
-	public static final Column ST_BoxIntersects(Column leftBoxCol, Column rightBoxCol) {
-		return callUDF("ST_BoxIntersects", leftBoxCol, rightBoxCol);
+	public static final Column ST_BoxIntersectsBox(Column leftBoxCol, Column rightBoxCol) {
+		return callUDF("ST_BoxIntersectsBox", leftBoxCol, rightBoxCol);
 	}
-	public static final Column ST_BoxIntersects(Column leftBoxCol, Envelope envl) {
-		Double[] coords = (envl != null) ? EnvelopeValue.toCoordinates(envl) : null;
-		return callUDF("ST_BoxIntersects", leftBoxCol, lit(coords));
+	public static final Column ST_BoxIntersectsBox(Column leftBoxCol, Envelope envl) {
+		Double[] coords = (envl != null) ? SERDE_ENVELOPE.serialize(envl) : null;
+		return callUDF("ST_BoxIntersectsBox", leftBoxCol, lit(coords));
+	}
+	public static final Column ST_GeomIntersectsBox(Column leftBoxCol, Column rightBoxCol) {
+		return callUDF("ST_GeomIntersectsBox", leftBoxCol, rightBoxCol);
+	}
+	public static final Column ST_GeomIntersectsBox(Column leftBoxCol, Envelope envl) {
+		Double[] coords = (envl != null) ? SERDE_ENVELOPE.serialize(envl) : null;
+		return callUDF("ST_GeomIntersectsBox", leftBoxCol, lit(coords));
 	}
 	public static final Column ST_TransformBox(Column boxCol, Column fromSrid, Column toSrid) {
 		return callUDF("ST_TransformBox", boxCol, fromSrid, toSrid);
@@ -190,6 +184,12 @@ public final class jarvey_functions {
 	
 	public static final Column JV_AttachQuadMembers(Column envl4326Col, Long[] candidates) {
 		return callUDF("JV_AttachQuadMembers", envl4326Col, lit(candidates));
+	}
+	public static final Column JV_IsValidEnvelope(Column boxCol) {
+		return callUDF("JV_IsValidEnvelope", boxCol);
+	}
+	public static final Column JV_IsValidWgs84Geometry(Column geom4326) {
+		return callUDF("JV_IsValidWgs84Geometry", geom4326);
 	}
 	
 	public static final Column tp_path(Column col) {

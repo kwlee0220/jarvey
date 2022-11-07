@@ -13,9 +13,10 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import jarvey.SpatialDataset;
+import jarvey.SpatialDataFrame;
 import jarvey.datasource.DatasetException;
 import jarvey.type.JarveySchema;
+
 import utils.func.Try;
 import utils.stream.FStream;
 
@@ -62,7 +63,7 @@ public class ShapefileWriter {
 		return this;
 	}
 
-	public long write(SpatialDataset sds) {
+	public long write(SpatialDataFrame sds) {
 		SimpleFeatureType sfType = ShapefileDataSets.toSimpleFeatureType(m_sftName, m_srid, sds.getJarveySchema());
 		SimpleFeatureBuilder builder = new SimpleFeatureBuilder(sfType);
 		

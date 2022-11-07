@@ -1,6 +1,5 @@
 package jarvey.datasource;
 
-import static jarvey.jarvey_functions.spatial;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.expr;
 
@@ -12,12 +11,17 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;
+import org.geotools.geometry.jts.Geometries;
 
+import jarvey.FilePath;
 import jarvey.JarveySession;
-import jarvey.SpatialDataset;
-import jarvey.support.HdfsPath;
+import jarvey.SpatialDataFrame;
 import jarvey.type.GeometryColumnInfo;
+import jarvey.type.GeometryType;
 import jarvey.type.JarveyDataType;
+import jarvey.type.JarveyDataTypes;
+import jarvey.type.JarveySchema;
+
 import utils.stream.FStream;
 
 /**
@@ -26,53 +30,54 @@ import utils.stream.FStream;
  */
 public class CsvDatasetLoader {
 	private final JarveySession m_jarvey;
-	private final HdfsPath m_root;
+	private DataFrameReader m_reader;
+	private final FilePath m_root;
 	private final Map<String,Object> m_desciption;
 
-	CsvDatasetLoader(JarveySession jarvey, HdfsPath root, Map<String,Object> desc) {
+	CsvDatasetLoader(JarveySession jarvey, DataFrameReader reader, FilePath root, Map<String,Object> desc) {
 		m_jarvey = jarvey;
+		m_reader = reader;
 		m_root = root;
 		m_desciption = desc;
 	}
 	
-	public SpatialDataset loadDataset() {
-		DataFrameReader reader = m_jarvey.read();
-		reader = applyOptions(reader);
+	public SpatialDataFrame load() {
+		m_reader = applyOptions(m_reader);
 
 		@SuppressWarnings("unchecked")
 		Map<String,Object> schemaYaml = (Map<String,Object>)m_desciption.get("schema");
 		if ( schemaYaml != null ) {
 			StructType schema = parseSchema(schemaYaml);
-			reader = reader.schema(schema);
+			m_reader = m_reader.schema(schema);
 		}
 		
 		Dataset<Row> df;
 		Object files = m_desciption.get("files");
 		if ( files == null ) {
-			df = reader.csv(m_root.toString());
+			df = m_reader.csv(m_root.getAbsolutePath());
 		}
 		else if ( files instanceof List ) {
-			String prefix = m_root.toString();
+			String prefix = m_root.getAbsolutePath();
 			@SuppressWarnings("unchecked")
 			String filesList = FStream.from((List<String>)files)
 									.map(file -> prefix + "/" + file)
 									.join(',');
-			df = reader.csv(filesList);
+			df = m_reader.csv(filesList);
 		}
 		else if ( files instanceof String ) {
-			df = reader.csv(m_root.toString() + "/" + files);
+			df = m_reader.csv(m_root.toString() + "/" + files);
 		}
 		else {
 			throw new DatasetException("supported files: " + files);
 		}
 		
 		df = updateColumnTypes(df);
-		SpatialDataset sds = geometrize(df);
+		SpatialDataFrame sds = geometrize(df);
 		
 		return sds;
 	}
 	
-	private SpatialDataset geometrize(Dataset<Row> df) {
+	private SpatialDataFrame geometrize(Dataset<Row> df) {
 		@SuppressWarnings("unchecked")
 		Map<String,Object> ptYaml = (Map<String,Object>)m_desciption.get("point");
 		if ( ptYaml != null ) {
@@ -82,13 +87,16 @@ public class CsvDatasetLoader {
 			if ( expr == null ) {
 				throw new DatasetException("'expr' is not present in 'point' description");
 			}
-
-			GeometryColumnInfo gcInfo = new GeometryColumnInfo(geomCol, srid);
 			df = df.withColumn(geomCol, expr(expr));
-			return spatial(m_jarvey, df, gcInfo).set_srid(srid);
+
+			GeometryColumnInfo gcInfo = new GeometryColumnInfo(geomCol, GeometryType.of(Geometries.POINT, srid));
+			JarveySchema jschema = JarveySchema.fromStructType(df.schema(), gcInfo);
+			return m_jarvey.toSpatial(df, jschema);
 		}
 		else {
-			throw new DatasetException("CSV dataset does not 'point' description");
+//			throw new DatasetException("CSV dataset does not 'point' description");
+			JarveySchema jschema = JarveySchema.fromStructType(df.schema(), null);
+			return m_jarvey.toSpatial(df, jschema);
 		}
 	}
 	
@@ -97,7 +105,7 @@ public class CsvDatasetLoader {
 		for ( Map.Entry<String,Object> ent: yaml.entrySet() ) {
 			String name = ent.getKey();
 			String typeExpr = ent.getValue().toString();
-			JarveyDataType dtype = JarveyDataType.fromString(typeExpr);
+			JarveyDataType dtype = JarveyDataTypes.fromString(typeExpr);
 			
 			schema = schema.add(DataTypes.createStructField(name, dtype.getSparkType(), true));
 		}

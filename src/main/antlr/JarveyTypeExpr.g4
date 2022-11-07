@@ -28,6 +28,9 @@ typeExpr
 	| 'CalendarInterval'
 	| geomtryTypeExpr sridSpec?
 	| 'Envelope'
+	| 'GridCell'
+	| 'Vector'
+	| 'TemporalPoint'
 	| 'Array' '<' typeExpr (',' nullSpec)? '>'
 	;
 	

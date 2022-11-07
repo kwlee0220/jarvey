@@ -10,12 +10,12 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.catalyst.expressions.GenericRow;
+import org.apache.spark.sql.RowFactory;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import jarvey.join.QidAttachedRow;
+import jarvey.support.RecordLite;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AliasContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AllButContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AllContext;
@@ -30,8 +30,10 @@ import jarvey.support.colexpr.ColumnSelectionExprParser.SelectionExprContext;
 import jarvey.type.JarveyColumn;
 import jarvey.type.JarveySchema;
 import jarvey.type.JarveySchemaBuilder;
+
 import utils.CIString;
 import utils.Utilities;
+import utils.func.FOption;
 import utils.func.Tuple;
 import utils.stream.FStream;
 
@@ -45,6 +47,7 @@ public class JoinColumnSelector implements Serializable {
 	private final Map<String,JarveySchema> m_schemas;
 	private final String m_colExpr;
 	private final JarveySchema m_outputJSchema;
+	private final Set<SelectedColumnInfo> m_selection;
 	
 	public JoinColumnSelector(JarveySchema left, JarveySchema right, String columnExpression) {
 		Utilities.checkNotNullArgument(columnExpression, "column expression is null");
@@ -54,25 +57,26 @@ public class JoinColumnSelector implements Serializable {
 		m_schemas.put("right", right);
 		m_colExpr = columnExpression;
 		
-		Set<SelectedColumnInfo> selecteds = parseColumnExpression(m_colExpr);
+		m_selection = parseColumnExpression(m_colExpr);
 		JarveySchemaBuilder builder
-				= FStream.from(parseColumnExpression(m_colExpr))
+				= FStream.from(m_selection)
 						.foldLeft(JarveySchema.builder(), (bldr, cinfo) -> addJarveyColumn(bldr, cinfo));
 		
+		// Default geometry column을 설정한다.
+		//
+		// 오른쪽 join SpatialDataFrame의 default Geometry가 조인 결과에 포함되는가 확인하여
+		// 포함된 경우, 이것은 조인 결과 SpatialDataFrame의 default geometry로 설정한다.
 		CIString rightDefGeomCol = right.getDefaultGeometryColumn().getName();
-		FStream.from(selecteds)
-				.filter(scInfo -> rightDefGeomCol.equals(scInfo.getColumnName()))
-				.forEach(scInfo -> {
-					String name = (scInfo.getAlias() != null) ? scInfo.getAlias() : scInfo.getColumnName();
-					builder.setDefaultGeometryColumn(name);
-				});
+		FStream.from(m_selection)
+				.filter(info -> rightDefGeomCol.equals(info.getColumnName()))
+				.forEach(info -> builder.setDefaultGeometryColumn(info.getOutputColumnName()));
+		// 왼쪽 join SpatialDataFrame의 default Geometry가 조인 결과에 포함되는가 확인하여
+		// 포함된 경우, 이것은 조인 결과 SpatialDataFrame의 default geometry로 설정한다.
+		// 만일 이전 과정에서 기 default geometry가 설정된 경우에는 이전 것은 무시된다.
 		CIString leftDefGeomCol = left.getDefaultGeometryColumn().getName();
-		FStream.from(selecteds)
-				.filter(scInfo -> leftDefGeomCol.equals(scInfo.getColumnName()))
-				.forEach(scInfo -> {
-					String name = (scInfo.getAlias() != null) ? scInfo.getAlias() : scInfo.getColumnName();
-					builder.setDefaultGeometryColumn(name);
-				});
+		FStream.from(m_selection)
+				.filter(info -> leftDefGeomCol.equals(info.getColumnName()))
+				.forEach(info -> builder.setDefaultGeometryColumn(info.getOutputColumnName()));
 		m_outputJSchema = builder.build();
 	}
 	
@@ -80,23 +84,60 @@ public class JoinColumnSelector implements Serializable {
 		return m_colExpr;
 	}
 	
+	public Set<SelectedColumnInfo> getColumnSelection() {
+		return m_selection;
+	}
+	
 	public JarveySchema getOutputJarveySchema() {
 		return m_outputJSchema;
 	}
 	
-	public Row select(QidAttachedRow left, QidAttachedRow right) throws ColumnSelectionException {
+	public FOption<SelectedColumnInfo> findColumnInfo(String ns, String colName) {
+		return FStream.from(m_selection)
+						.findFirst(info -> info.getNamespace().equals(ns)
+									&& info.getColumnName().equalsIgnoreCase(colName));
+	}
+	
+	public RecordLite select(JarveySchema leftSchema, RecordLite left,
+						JarveySchema rightSchema, RecordLite right) throws ColumnSelectionException {
 		Set<SelectedColumnInfo> columnInfos = parseColumnExpression(m_colExpr);
 		
 		int idx = 0;
 		Object[] values = new Object[columnInfos.size()];
 		for ( SelectedColumnInfo cinfo: columnInfos ) {
-			values[idx] = cinfo.getNamespace().equals("right")
-								? right.getAs(cinfo.getColumnName())
-								: left.getAs(cinfo.getColumnName());
+			if ( cinfo.getNamespace().equals("right") ) {
+				int colIdx = rightSchema.getColumn(cinfo.getColumnName()).getIndex();
+				values[idx] = right.get(colIdx);
+			}
+			else {
+				int colIdx = leftSchema.getColumn(cinfo.getColumnName()).getIndex();
+				values[idx] = left.get(colIdx);
+			}
 			++idx;
 		}
 		
-		return new GenericRow(values);
+		return RecordLite.of(values);
+	}
+	
+	public Row select(JarveySchema leftSchema, Row left, JarveySchema rightSchema, Row right)
+		throws ColumnSelectionException {
+		Set<SelectedColumnInfo> columnInfos = parseColumnExpression(m_colExpr);
+		
+		int idx = 0;
+		Object[] values = new Object[columnInfos.size()];
+		for ( SelectedColumnInfo cinfo: columnInfos ) {
+			if ( cinfo.getNamespace().equals("right") ) {
+				int colIdx = rightSchema.getColumn(cinfo.getColumnName()).getIndex();
+				values[idx] = right.get(colIdx);
+			}
+			else {
+				int colIdx = leftSchema.getColumn(cinfo.getColumnName()).getIndex();
+				values[idx] = left.get(colIdx);
+			}
+			++idx;
+		}
+		
+		return RowFactory.create(values);
 	}
 	
 	@Override

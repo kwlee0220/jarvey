@@ -68,7 +68,5 @@ public interface Partition<T extends Enveloped> {
 	 * 
 	 * @return	용량 확장 여부
 	 */
-	public default boolean tryExpand() {
-		return false;
-	}
+	public boolean tryExpand();
 }

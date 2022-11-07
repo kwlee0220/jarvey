@@ -19,12 +19,15 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.ParseException;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 
-import jarvey.datasource.DatasetException;
+import jarvey.JarveyRuntimeException;
+
+import utils.geo.util.GeoClientUtils;
 
 /**
  *
@@ -45,9 +48,6 @@ public class GeometryType extends JarveyDataType {
 	public static final GeometryType of(Geometries geomType, int srid) {
 		return new GeometryType(geomType, srid);
 	}
-	public static final GeometryType of(int srid) {
-		return of(Geometries.GEOMETRY, srid);
-	}
 	
 	private GeometryType(Geometries geomType, int srid) {
 		super(DATA_TYPE);
@@ -66,6 +66,10 @@ public class GeometryType extends JarveyDataType {
 	
 	public GeometryType newGeometryType(int srid) {
 		return of(m_geomType, srid);
+	}
+	
+	public Geometry newEmptyInstance() {
+		return GeoClientUtils.emptyGeometry(m_geomType);
 	}
 
 	@Override
@@ -101,28 +105,33 @@ public class GeometryType extends JarveyDataType {
 	}
 	
 	@Override
-	public Object serialize(Object value) {
+	public byte[] serialize(Object value) {
 		if ( value == null ) {
 			return null;
 		}
 		else if ( value instanceof Geometry ) {
-			return GeometryValue.serialize((Geometry)value);
+			return GeoClientUtils.toWKB((Geometry)value);
 		}
 		else {
-			throw new DatasetException("invalid Geometry: " + value);
+			throw new JarveyRuntimeException("invalid Geometry: " + value);
 		}
 	}
 
 	@Override
-	public Object deserialize(Object value) {
+	public Geometry deserialize(Object value) {
 		if ( value == null ) {
 			return null;
 		}
 		else if ( value instanceof byte[] ) {
-			return GeometryValue.deserialize((byte[])value);
+			try {
+				return GeoClientUtils.fromWKB((byte[])value);
+			}
+			catch ( ParseException e ) {
+				throw new JarveyRuntimeException("fails to parse WKB, cause=" + e);
+			}
 		}
 		else {
-			throw new DatasetException("invalid serialized value for Geometry: " + value);
+			throw new JarveyRuntimeException("invalid serialized value for Geometry: " + value);
 		}
 	}
 	

@@ -13,8 +13,8 @@ import utils.io.IOUtils;
  * 
  * @author Kang-Woo Lee (ETRI)
  */
-public abstract class ChainedPartitionReader extends AbstractPartitionReader {
-	@Nullable private PartitionReader<InternalRow> m_current = null;	// null이면 first-call 의미
+public abstract class ChainedPartitionReader<R extends PartitionReader<InternalRow>> extends AbstractPartitionReader {
+	@Nullable private R m_current = null;	// null이면 first-call 의미
 	private boolean m_eos = false;
 	
 	/**
@@ -24,7 +24,7 @@ public abstract class ChainedPartitionReader extends AbstractPartitionReader {
 	 * 
 	 * @return PartitionReader 또는 {@code null}.
 	 */
-	abstract protected PartitionReader<InternalRow> getNextPartitionReader() throws IOException;
+	abstract protected R getNextPartitionReader() throws IOException;
 
 	@Override
 	protected void closeInGuard() throws IOException {
@@ -50,8 +50,9 @@ public abstract class ChainedPartitionReader extends AbstractPartitionReader {
 		}
 		
 		while ( m_current.next() == false ) {
+			onComponentPartitionReaderClosed(m_current);
 			m_current.close();
-
+			
 			if ( (m_current = getNextPartitionReader()) == null ) {
 				m_eos = true;
 				return false;
@@ -69,4 +70,6 @@ public abstract class ChainedPartitionReader extends AbstractPartitionReader {
 		
 		return m_current.get();
 	}
+	
+	protected void onComponentPartitionReaderClosed(R component) { }
 }

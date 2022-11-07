@@ -1,59 +1,59 @@
 #!  /bin/bash 
-estimate_quadkeys social/tweets/heap -output database/standard_qkeys
 
 
 ############################################################################################
 ##### 주요 구역들
 ############################################################################################
-dataset import shp $JARVEY_DATA/행자부/법정구역_5179/시도 district_sd --charset euc-kr -f
-dataset import shp $JARVEY_DATA/행자부/법정구역_5179/시군구 district_sgg --charset euc-kr -f
-dataset import shp $JARVEY_DATA/행자부/법정구역_5179/읍면동 district_emd --charset euc-kr -f
-dataset import shp $JARVEY_DATA/행자부/법정구역_5179/리 district_li --charset euc-kr -f
+dataset import shp $JARVEY_DATA/행자부/법정구역_5179/시도 구역/시도 --charset euc-kr --srid 5179 -n 1 -f
+dataset import shp $JARVEY_DATA/행자부/법정구역_5179/시군구 구역/시군구 --charset euc-kr --srid 5179 -n 1 -f
+dataset import shp $JARVEY_DATA/행자부/법정구역_5179/읍면동 구역/읍면동 --charset euc-kr --srid 5179 -n 1 -f
+dataset cluster 구역/읍면동 --cluster_size 16mb --cluster_limit 20mb --outlier_limit 1mb --sample_ratio 0.5 --drop_final_outliers -f
+dataset import shp $JARVEY_DATA/행자부/법정구역_5179/리 구역/리 --charset euc-kr --srid 5179 -n 1 -f
+dataset cluster 구역/리 --cluster_size 16mb --cluster_limit 20mb --outlier_limit 1mb --sample_ratio 0.5 --drop_final_outliers -f
 
 ##### 연속지적도_2017
-dataset import shp $JARVEY_DATA/공공데이터포털/연속지적도_2017 district_cadastral --charset euc-kr -f
-dataset cluster district_cadastral --sample_ratio 0.2 -f --cluster_size 64mb
+dataset import shp $JARVEY_DATA/공공데이터포털/연속지적도_2017 구역/연속지적도 -c euc-kr -s 5186 -n 10 -f
+dataset_client cluster 구역/연속지적도 --cluster_limit 80mb --drop_final_outliers -f
 ##### 연속지적도_2017 (사업단)
-dataset import shp $JARVEY_DATA/사업단자료/연속지적도_2017 district_cadastral_2017 -f
+dataset import shp $JARVEY_DATA/사업단자료/연속지적도_2017 구역/연속지적도_2017 -n 10 -f
+dataset_client cluster 구역/연속지적도_2017 -f
 ##### 행정동코드
-dataset import shp $JARVEY_DATA/사업단자료/행정동코드 district_administral -f
+dataset import shp $JARVEY_DATA/사업단자료/행정동코드 구역/행정동코드 -c utf-8 -s 5186 -n 1 -f
 ##### 기초구역
-dataset import shp $JARVEY_DATA/행자부/기초구역_5179 구역/기초구역 --charset euc-kr -f
-mc_spindex create 구역/기초구역
+dataset import shp $JARVEY_DATA/행자부/기초구역_5179 구역/기초구역 -c euc-kr -s 5179 -n 1 -f
 ##### 통계청 집계구
-dataset import shp $JARVEY_DATA/2021/경계_전수_집계구 district_output_kostat --srid 5181 --charset euc-kr -f
-dataset cluster district_output_kostat --cluster_size 64mb --sample_ratio 0.3 -f
+dataset import shp $JARVEY_DATA/2021/경계_전수_집계구 구역/집계구 -s 5181 -c euc-kr -n 1 -f
+dataset cluster 구역/집계구 --cluster_size 32mb --cluster_limit 48mb --outlier_limit 1mb --sample_ratio 0.5 --drop_final_outliers -f
 
 
 ############################################################################################
 ##### 국가공간정보포털 - 국가중점데이터
 ############################################################################################
 ##### 연속지적도형정보(국가중점데이터)
-dataset import shp $JARVEY_DATA/국가공간정보포털/연속지적도형정보/2019.07 district_cadastral_2019 --srid 5174 --charset euc-kr	-f
-dataset cluster district_cadastral_2019 --cluster_size 64mb --sample_ratio 0.15 -f
+dataset import shp $JARVEY_DATA/국가공간정보포털/연속지적도형정보/2019.07 구역/연속지적도_2019 -s 5174 -c euc-kr -f -n 10
+dataset_client cluster 구역/연속지적도_2019 --cluster_limit 80mb --drop_final_outliers --sample_ratio 0.2 -f
 ##### GIS건물통합정보(국가중점데이터)
-dataset import shp  $JARVEY_DATA/국가공간정보포털/GIS건물통합정보/2019.07 building_gis_2019 --srid 5174 --charset euc-kr -f
-dataset cluster building_gis_2019 --cluster_size 64mb --sample_ratio 0.2 -f
+dataset import shp $JARVEY_DATA/국가공간정보포털/GIS건물통합정보/2019.07 건물/GIS건물통합정보_2019 -s 5174 -c euc-kr -f -n 7
+dataset_client cluster 건물/GIS건물통합정보_2019 --cluster_limit 80mb --drop_final_outliers -f
 ##### 법정구역정보-시군구(국가중점데이터)
-dataset import shp $JARVEY_DATA/국가공간정보포털/법정구역정보/2019.07/SIG 구역/시군구_2019 --srid 5174 --charset euc-kr	-f
+dataset import shp $JARVEY_DATA/국가공간정보포털/법정구역정보/2019.07/SIG 구역/시군구_2019 -s 5174 -c euc-kr -f -n 1
 mc_spindex create 구역/시군구_2019 -workers 1
 ##### 법정구역정보-읍면동(국가중점데이터)
-dataset import shp $JARVEY_DATA/국가공간정보포털/법정구역정보/2019.07/EMD 구역/읍면동_2019 --srid 5174 --charset euc-kr	-f
+dataset import shp $JARVEY_DATA/국가공간정보포털/법정구역정보/2019.07/EMD 구역/읍면동_2019 -s 5174 -c euc-kr -n 1 -f
 mc_spindex create 구역/읍면동_2019 -workers 1
 ##### 법정구역정보-리(국가중점데이터)
-dataset import shp $JARVEY_DATA/국가공간정보포털/법정구역정보/2019.07/LIO 구역/리_2019 --srid 5174 --charset euc-kr -f
+dataset import shp $JARVEY_DATA/국가공간정보포털/법정구역정보/2019.07/LIO 구역/리_2019 -s 5174 -c euc-kr -n 1 -f
 mc_spindex create 구역/리_2019
 
 
 ############################################################################################
 ##### 도로명/지번 주소 관련 정보
 ############################################################################################
-hdfs dfs -copyFromLocal $JARVEY_DATA/행자부/도로명주소/건물_위치정보 jarvey/warehouse/poi_buildings
-dataset cluster poi_buildings --cluster_size 256mb --sample_ratio 0.3 -f
+hdfs dfs -copyFromLocal $JARVEY_DATA/행자부/도로명주소/건물_위치정보 jarvey/datasets/건물/건물_위치정보
+dataset cluster 건물/건물_위치정보 --cluster_limit 86mb --drop_final_outliers -f
 ## 새주소건물
-#dataset import shp $JARVEY_DATA/국가공간정보포털/새주소건물 건물/새주소건물 --srid 5181	\
-#				-geom_col 'the_geom(5186)' --charset euc-kr -f
-#dataset cluster create 건물/새주소건물 -workers 11
+dataset import shp $JARVEY_DATA/국가공간정보포털/새주소건물 건물/새주소건물 -s 5181 -c euc-kr -n 5 -f
+dataset_client cluster 건물/새주소건물 --cluster_limit 86mb --drop_final_outliers -f
 
 
 ############################################################################################
@@ -63,11 +63,11 @@ dataset cluster poi_buildings --cluster_size 256mb --sample_ratio 0.3 -f
 hdfs dfs -put $JARVEY_DATA/공공데이터포털/표준공시지가 jarvey/database/토지/표준공시지가
 ##### 개별공시지가
 dataset import csv $JARVEY_DATA/공공데이터포털/개별공시지가/2012-2017 토지/개별공시지가 -header_first --charset euc-kr -f
-dataset import shp $JARVEY_DATA/공공데이터포털/개별공시지가/2018 토지/개별공시지가_2018 --srid 5186 --charset euc-kr -f
+dataset import shp $JARVEY_DATA/공공데이터포털/개별공시지가/2018 토지/개별공시지가_2018 -s 5186 -c euc-kr -n 7 -f
 mc_copy 토지/개별공시지가_2018 토지/개별공시지가 -project '*-{the_geom}' -a
 dataset import shp $JARVEY_DATA/공공데이터포털/개별공시지가/2017 토지/개별공시지가_2017	--charset euc-kr -f
 ##### 용도지역지구
-dataset import shp $JARVEY_DATA/사업단자료/용도지역지구 land_use_area --charset euc-kr -f
+dataset import shp $JARVEY_DATA/사업단자료/용도지역지구 토지/용도지역지구 -c euc-kr -n 1 -f
 
 
 ############################################################################################
@@ -89,25 +89,37 @@ dataset import shp $JARVEY_DATA/사업단자료_2018/지도_데이터/성연령�
 dataset import shp $JARVEY_DATA/사업단자료_2018/지도_데이터/성연령별인구/2010년 주민/성연령별인구/2010년 -f
 dataset import shp $JARVEY_DATA/사업단자료_2018/지도_데이터/성연령별인구/2015년 주민/성연령별인구/2015년 -f
 #### 인구밀도_2000 (2015년 기준)
-dataset import shp $JARVEY_DATA/사업단자료/인구밀도_2000 population_density_2000 -f
+dataset import shp $JARVEY_DATA/사업단자료/인구밀도_2000 주민/인구밀도_2000 -f
 
 
 ############################################################################################
 ##### 지오비전 데이터
 ############################################################################################
 ##### 집계구
-dataset import shp $JARVEY_DATA/사업단자료/지오비전/집계구/2015 geovision_district_output_2015 -f
-dataset import shp $JARVEY_DATA/사업단자료/지오비전/집계구/2018 geovision_district_output_2018 --charset euc-kr -f
-##### 유동인구 (2015)
-hdfs dfs -mkdir jarvey/warehouse/geovision_population_2015_by_time
-hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/지오비전/유동인구/2015/시간대/*.csv jarvey/warehouse/geovision_population_2015_by_time
-hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/지오비전/유동인구/2015/시간대/*.yaml jarvey/warehouse/geovision_population_2015_by_time
+dataset import shp $JARVEY_DATA/사업단자료/지오비전/집계구/2015 경제/지오비전/집계구/2015 -n 1 -f
+dataset cluster 경제/지오비전/집계구/2015 --cluster_size 8mb --cluster_limit 10mb --outlier_limit 256kb --drop_final_outliers -f
 
-dataset import csv $JARVEY_DATA/사업단자료/지오비전/유동인구/2015/시간대 지오비전/유동인구/2015/월별_시간대	\
-		-delim '|' -header_first -null_value='0.0' -point_cols 'X_COORD|Y_COORD' --srid '5179' -geom_col 'the_geom(5186)' -f
+dataset import shp $JARVEY_DATA/사업단자료/지오비전/집계구/2018 경제/지오비전/집계구/2018 -c euc-kr -n 1 -f
+
+##### 유동인구 (2014)
+dataset import shp $JARVEY_DATA/사업단자료/지오비전/유동인구/2014 경제/지오비전/유동인구/2014 -c euc-kr -n 1 -f
+
+##### 유동인구 (2015)
+hdfs dfs -mkdir -p jarvey/datasets/경제/지오비전/유동인구/2015/시간대
+hdfs dfs -copyFromLocal -t 3 $JARVEY_DATA/사업단자료/지오비전/유동인구/2015/시간대/*.csv jarvey/datasets/경제/지오비전/유동인구/2015/시간대
+hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/지오비전/유동인구/2015/시간대/*.yaml jarvey/datasets/경제/지오비전/유동인구/2015/시간대
+dataset_client tag_geometry 경제/지오비전/유동인구/2015/시간대 경제/지오비전/집계구/2015 tmp/output --join_columns 'block_cd:block_cd' -n 11 -v -f
+#dataset_client cluster 경제/지오비전/유동인구/2015/시간대 --cluster_limit 70mb --drop_final_outliers -f
+hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/지오비전/유동인구/2015/요일별/*.txt 경제/지오비전/유동인구/2015/요일별
+hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/지오비전/유동인구/2015/요일별/*.yaml 경제/지오비전/유동인구/2015/요일별
+hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/지오비전/유동인구/2015/성연령/*.txt 경제/지오비전/유동인구/2015/성연령
+hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/지오비전/유동인구/2015/성연령/*.yaml 경제/지오비전/유동인구/2015/성연령
+
 ##### 지오비전 카드매출 (2015)
-hdfs dfs -mkdir jarvey/warehouse/geovision_cardsales_2015_by_time
-hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/지오비전/카드매출/2015/시간대/*.txt jarvey/warehouse/geovision_cardsales_2015_by_time
+hdfs dfs -mkdir -p jarvey/datasets/경제/지오비전/카드매출/2015/시간대
+hdfs dfs -copyFromLocal -t 3 $JARVEY_DATA/사업단자료/지오비전/카드매출/2015/시간대/*.txt jarvey/datasets/경제/지오비전/카드매출/2015/시간대
+hdfs dfs -copyFromLocal -t 3 $JARVEY_DATA/사업단자료/지오비전/카드매출/2015/시간대/*.yaml jarvey/datasets/경제/지오비전/카드매출/2015/시간대
+dataset_client tag_geometry 경제/지오비전/카드매출/2015/시간대 경제/지오비전/집계구/2015 tmp/output --join_columns 'block_cd:block_cd' -n 17 -v -f
 
 
 ############################################################################################
@@ -122,11 +134,11 @@ mc_spindex create 교통/도로/링크 -workers 3
 dataset import shp $JARVEY_DATA/사업단자료/철도망_2013/철도교차점 교통/철도/노드 --charset euc-kr -f
 dataset import shp $JARVEY_DATA/사업단자료/철도망_2013/철도중심선 교통/철도/링크 --charset euc-kr -f
 ##### 지하철
-dataset import shp  $JARVEY_DATA/사업단자료/전국지하철_2015/역사 subway_stations --charset euc-kr -f
+dataset import shp $JARVEY_DATA/사업단자료/전국지하철_2015/역사 교통/지하철/역사 --charset euc-kr -n 1 -f
 dataset import shp $JARVEY_DATA/사업단자료/전국지하철_2015/선로 교통/지하철/선로 --charset euc-kr -f
 dataset import shp $JARVEY_DATA/사업단자료/전국지하철_2015/출입구 교통/지하철/출입구 --charset euc-kr -f
 ##### 서울 지하철: 역사 (polygon)
-dataset import shp $JARVEY_DATA/포스웨이브/서울지하철역사 subway_stations_seoul --charset euc-kr -f
+dataset import shp $JARVEY_DATA/포스웨이브/서울지하철역사 교통/지하철/서울역사 --charset euc-kr -f
 ##### 수도권 지하철: 역사위치 (point)
 mc_import_csv $JARVEY_DATA/공공데이터포털/서울시/지하철/역_위치 교통/지하철/서울/역위치 -quote '"' -header_first	\
 				-point_cols 'Y좌표_WGS_,X좌표_WGS_' --srid 4326 -geom_col 'the_geom(5186)' -f
@@ -146,7 +158,8 @@ mc_import_csv $JARVEY_DATA/공공데이터포털/서울버스/정류소 교통/�
 			-point_cols 'X좌표,Y좌표' -geom_col 'the_geom(5186)' --srid 4326 -f
 
 ##### 나비콜 택시 운행 로그
-hdfs dfs -copyFromLocal $JARVEY_DATA/나비콜/201601 jarvey/warehouse/navi_call
+hdfs dfs -copyFromLocal -t 3 $JARVEY_DATA/나비콜/201601 jarvey/datasets/교통/나비콜
+
 
 ##### 사망사고
 import_csv $JARVEY_DATA/기타/교통사고정보/사망교통사고 교통/교통사고/사망사고 -quote '"' -header_first	\
@@ -173,33 +186,24 @@ import_csv $JARVEY_DATA/기타/교통사고정보/보행노인사고 교통/교�
 ############################################################################################
 #### 운송사 코드
 mc_import_csv $JARVEY_DATA/도로교통안전공단/운수회사별_업종 교통/dtg_companies -header_first -quote '"' -f
-##### (2016.09)
-mc_upload_files $JARVEY_DATA/도로교통안전공단/DTG data/로그/dtg_201609 -glob '**/*.st'
-upload_files $JARVEY_DATA/도로교통안전공단/DTG data/로그/dtg_201609 -glob '**/201609??.csv.gz'
-dataset bind data/로그/dtg_201609 교통/dtg_201609_R -type text -geom_col 'the_geom(4326)' -f
-mc_copy 교통/dtg_201609_R 교통/dtg_201609 -c lz4 -f -geom_col 'the_geom(4326)'
-dataset delete 교통/dtg_201609_R
-#mc_spcluster create 교통/dtg_201609 -mappers -1 -sample_size '256mb' -cluster_size '1gb' -b 128mb -partitions 11 -f
-##### (2018.09)
-upload_files $JARVEY_DATA/도로교통안전공단/DTG_201809 data/로그/dtg_201809 -glob '**/DTG-r-*.gz'
-dataset bind data/로그/dtg_201809 교통/dtg_201809 -type text -geom_col 'the_geom(4326)'
 
-############################################################################################
+##### DTG 데이터 (교통안전공단, 2016.09)
+hdfs dfs -rm -r -skipTrash jarvey/datasets/교통/dtg/2016
+hdfs dfs -mkdir -p jarvey/datasets/교통/dtg/2016
+hdfs dfs -put -t 3 $JARVEY_DATA/도로교통안전공단/DTG/2016*.csv jarvey/datasets/교통/dtg/2016
+hdfs dfs -put $JARVEY_DATA/도로교통안전공단/DTG/_descriptor.yaml jarvey/datasets/교통/dtg/2016
+
 ##### DTG 데이터 (교통안전공단, 2018년도)
-############################################################################################
-#### 테스트 데이터
-hdfs dfs -rm -r -skipTrash jarvey/database/교통
-hdfs dfs -mkdir -p jarvey/database/교통/dtg/2018
-hdfs dfs -put $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_434 jarvey/database/교통/dtg/2018
-hdfs dfs -put $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_435 jarvey/database/교통/dtg/2018
-hdfs dfs -put $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_436 jarvey/database/교통/dtg/2018
-hdfs dfs -put $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_437 jarvey/database/교통/dtg/2018
-hdfs dfs -put $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_438 jarvey/database/교통/dtg/2018
-hdfs dfs -put $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_439 jarvey/database/교통/dtg/2018
-hdfs dfs -put $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_440 jarvey/database/교통/dtg/2018
-mc_upload_files $JARVEY_DATA/도로교통안전공단/DTG_201809/_meta_st data/로그/dtg_201809
-time upload_files $JARVEY_DATA/도로교통안전공단/DTG_201809 data/로그/dtg_201809 -glob '**/DTG-r-*.gz'
-dataset bind data/로그/dtg_201809 교통/dtg_201809 -type text -geom_col 'the_geom(4326)' -f
+hdfs dfs -rm -r -skipTrash jarvey/datasets/교통/dtg/2018
+hdfs dfs -mkdir -p jarvey/datasets/교통/dtg/2018
+hdfs dfs -put -t 3 $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_434 jarvey/datasets/교통/dtg/2018
+hdfs dfs -put -t 3 $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_435 jarvey/datasets/교통/dtg/2018
+hdfs dfs -put -t 3 $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_436 jarvey/datasets/교통/dtg/2018
+hdfs dfs -put -t 3 $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_437 jarvey/datasets/교통/dtg/2018
+hdfs dfs -put -t 3 $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_438 jarvey/datasets/교통/dtg/2018
+hdfs dfs -put -t 3 $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_439 jarvey/datasets/교통/dtg/2018
+hdfs dfs -put -t 3 $JARVEY_DATA/도로교통안전공단/DTG_201809/dps_440 jarvey/datasets/교통/dtg/2018
+hdfs dfs -put $JARVEY_DATA/도로교통안전공단/DTG_201809/_descriptor.yaml jarvey/datasets/교통/dtg/2018
 
 
 ############################################################################################
@@ -259,10 +263,13 @@ mc_import_csv $JARVEY_DATA/공공데이터포털/지구대_파출소 POI/지구�
 ##### 사회보장시설
 dataset import shp $JARVEY_DATA/사업단자료/사회보장시설 POI/사회보장시설 --charset euc-kr -f
 ##### 노인복지시설
-dataset import shp  $JARVEY_DATA/사업단자료/노인복지시설_통합 poi_elderly_care_facilities -f
+dataset import shp  $JARVEY_DATA/사업단자료/노인복지시설_통합 POI/노인복지시설 -f
 ##### 어린이보호구역
-mc_import_csv $JARVEY_DATA/사업단자료/전국어린이보호구역 POI/어린이보호구역 -quote '"' -header_first	\
-				-geom_col 'the_geom(5186)' -f
+hdfs dfs -mkdir -p jarvey/datasets/POI/어린이보호구역
+hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/전국어린이보호구역/*.csv jarvey/datasets/POI/어린이보호구역
+hdfs dfs -copyFromLocal $JARVEY_DATA/사업단자료/전국어린이보호구역/*.yaml jarvey/datasets/POI/어린이보호구역
+#mc_import_csv $JARVEY_DATA/사업단자료/전국어린이보호구역 POI/어린이보호구역 -quote '"' -header_first	\
+#				-geom_col 'the_geom(5186)' -f
 ##### 주요상권
 dataset import shp $JARVEY_DATA/사업단자료/주요상권 POI/주요상권 -f
 mc_spindex create POI/주요상권

@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.spark.sql.Column;
-
-import jarvey.SpatialDataset;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 
 /**
  * 
@@ -39,7 +39,11 @@ public final class SelectedColumnInfo implements Serializable {
 		m_alias = name;
 	}
 	
-	public Column toColumnExpr(Map<String,SpatialDataset> sdsMap) {
+	public String getOutputColumnName() {
+		return (m_alias != null) ? m_alias : m_colName;
+	}
+	
+	public Column toColumnExpr(Map<String,Dataset<Row>> sdsMap) {
 		Column expr = sdsMap.get(m_ns).col(m_colName);
 		if ( m_alias != null ) {
 			expr = expr.as(m_alias);

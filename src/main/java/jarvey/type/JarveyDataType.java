@@ -1,17 +1,8 @@
 package jarvey.type;
 
 import java.io.Serializable;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.util.Map;
 
 import org.apache.spark.sql.types.DataType;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-
-import com.google.common.collect.Maps;
-
-import jarvey.support.typeexpr.JarveyTypeParser;
 
 /**
  * 
@@ -21,6 +12,10 @@ public abstract class JarveyDataType implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	protected final DataType m_sparkType;
+	
+	public Object serializeToInternal(Object value) {
+		return serialize(value);
+	}
 	
 	/**
 	 * Converts the input value into a serialized one.
@@ -45,7 +40,7 @@ public abstract class JarveyDataType implements Serializable {
 	 */
 	public abstract Class<?> getJavaClass();
 	
-	JarveyDataType(DataType sparkType) {
+	public JarveyDataType(DataType sparkType) {
 		m_sparkType = sparkType;
 	}
 	
@@ -129,57 +124,4 @@ public abstract class JarveyDataType implements Serializable {
 			throw new IllegalStateException("not EnvelopeType: " + this);
 		}
 	}
-
-	/**
-	 * Parse a type string expression and returns JarveyDataType object.
-	 * 
-	 * @param typeExpr	type string.
-	 * @return	JarveyDataType object.
-	 */
-	public static JarveyDataType fromString(String typeExpr) {
-		return JarveyTypeParser.parseTypeExpr(typeExpr);
-	}
-	
-	/**
-	 * Get JavaDataType that corresponding to the given java class.
-	 *
-	 * @param cls	Java class
-	 * @return	JavaDataType for this java class.
-	 */
-	public static JarveyDataType fromJavaClass(Class<?> cls) {
-		if ( Geometry.class.isAssignableFrom(cls) ) {
-			return GeometryType.fromJavaClass(cls, 0);
-		}
-		
-		JarveyDataType jtype = CLASS_TO_TYPE.get(cls);
-		if ( jtype != null ) {
-			return jtype;
-		}
-		
-		Class<?> elmCls = cls.getComponentType();
-		if ( elmCls != null ) {
-			JarveyDataType elmJType = fromJavaClass(elmCls);
-			return ArrayType.of(elmJType, true);
-		}
-		
-		throw new IllegalArgumentException("unknown Java class: " + cls);
-	}
-	
-	public static final Map<Class<?>, JarveyDataType> CLASS_TO_TYPE = Maps.newHashMap();
-	static {
-		CLASS_TO_TYPE.put(String.class, JarveyDataTypes.StringType);
-		CLASS_TO_TYPE.put(Long.class, JarveyDataTypes.LongType);
-		CLASS_TO_TYPE.put(Integer.class, JarveyDataTypes.IntegerType);
-		CLASS_TO_TYPE.put(Short.class, JarveyDataTypes.ShortType);
-		CLASS_TO_TYPE.put(Byte.class, JarveyDataTypes.ByteType);
-		CLASS_TO_TYPE.put(Double.class, JarveyDataTypes.DoubleType);
-		CLASS_TO_TYPE.put(Float.class, JarveyDataTypes.FloatType);
-		CLASS_TO_TYPE.put(Byte[].class, JarveyDataTypes.BinaryType);
-		CLASS_TO_TYPE.put(Boolean.class, JarveyDataTypes.BooleanType);
-		CLASS_TO_TYPE.put(Date.class, JarveyDataTypes.DateType);
-		CLASS_TO_TYPE.put(java.util.Date.class, JarveyDataTypes.DateType);
-		CLASS_TO_TYPE.put(Timestamp.class, JarveyDataTypes.TimestampType);
-		
-		CLASS_TO_TYPE.put(Envelope.class, JarveyDataTypes.Envelope_Type);
-	};
 }

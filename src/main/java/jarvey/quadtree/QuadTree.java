@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import jarvey.join.SpatialRelation;
+import jarvey.optor.geom.SpatialRelation;
 import jarvey.support.MapTile;
 import utils.Utilities;
 import utils.geo.quadtree.TooBigValueException;

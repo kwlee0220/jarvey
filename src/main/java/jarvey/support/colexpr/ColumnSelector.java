@@ -9,11 +9,12 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.spark.sql.Column;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import jarvey.SpatialDataset;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AliasContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AllButContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AllContext;
@@ -25,6 +26,9 @@ import jarvey.support.colexpr.ColumnSelectionExprParser.FullColNameListContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.IdListContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.NamespaceContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.SelectionExprContext;
+import jarvey.type.JarveySchema;
+
+import utils.CIString;
 import utils.Utilities;
 import utils.func.Tuple;
 import utils.stream.FStream;
@@ -34,32 +38,37 @@ import utils.stream.FStream;
  * @author Kang-Woo Lee (ETRI)
  */
 public class ColumnSelector {
-	private final Map<String,SpatialDataset> m_datasets;
+	private final Map<String,JarveySchema> m_schemas;
 	private final String m_colExpr;
 	
 	public static final ColumnSelector fromExpression(String columnExpression) {
 		return new ColumnSelector(Maps.newHashMap(), columnExpression);
 	}
 	
-	private ColumnSelector(Map<String,SpatialDataset> namespaces, String columnExpression) {
+	public static final ColumnSelector from(JarveySchema jschema, String columnExpr) {
+		return new ColumnSelector(Maps.newHashMap(), columnExpr)
+					.addOrReplaceDataset("", jschema);
+	}
+	
+	private ColumnSelector(Map<String,JarveySchema> namespaces, String columnExpression) {
 		Utilities.checkNotNullArgument(columnExpression, "column expression is null");
 		
-		m_datasets = namespaces;
+		m_schemas = namespaces;
 		m_colExpr = columnExpression;
 	}
 	
-	public SpatialDataset getSourceDataset(String alias) {
+	public JarveySchema getSourceSchema(String alias) {
 		Utilities.checkNotNullArgument(alias, "RecordSchema alias is null");
 		
-		return m_datasets.get(alias);
+		return m_schemas.get(alias);
 	}
 	
-	public ColumnSelector addOrReplaceDataset(String alias, SpatialDataset jschema) {
-		Utilities.checkNotNullArgument(alias, "JarveySchema alias is null");
-		Utilities.checkNotNullArgument(jschema, "JarveySchema is null");
+	public ColumnSelector addOrReplaceDataset(String alias, JarveySchema schema) {
+		Utilities.checkNotNullArgument(alias, "StructType alias is null");
+		Utilities.checkNotNullArgument(schema, "StructType is null");
 		
-		Map<String,SpatialDataset> added = Maps.newHashMap(m_datasets);
-		added.put(alias, jschema);
+		Map<String,JarveySchema> added = Maps.newHashMap(m_schemas);
+		added.put(alias, schema);
 		return new ColumnSelector(added, m_colExpr);
 	}
 	
@@ -67,10 +76,19 @@ public class ColumnSelector {
 		return m_colExpr;
 	}
 	
-	public Column[] select() throws ColumnSelectionException {
-		Set<SelectedColumnInfo> columnInfos = parseColumnExpression(m_colExpr);
-		return FStream.from(columnInfos)
-						.map(info -> info.toColumnExpr(m_datasets))
+	public Set<SelectedColumnInfo> select() throws ColumnSelectionException {
+		return parseColumnExpression(m_colExpr);
+	}
+	
+	public Column[] selectColumnExpr(Dataset<Row> df) throws ColumnSelectionException {
+		Map<String,Dataset<Row>> dfs = Maps.newHashMap();
+		dfs.put("", df);
+		return selectColumnExpr(dfs);
+	}
+	
+	public Column[] selectColumnExpr(Map<String,Dataset<Row>> dfs) throws ColumnSelectionException {
+		return FStream.from(select())
+						.map(info -> info.toColumnExpr(dfs))
 						.toArray(Column.class);
 	}
 	
@@ -134,14 +152,14 @@ public class ColumnSelector {
 			NamespaceContext nsCtx = ctx.getChild(NamespaceContext.class, 0);
 			String ns = (nsCtx != null) ? nsCtx.getChild(0).getText() : "";
 			
-			SpatialDataset sds = m_datasets.get(ns);
-			if ( sds == null ) {
+			JarveySchema jschema = m_schemas.get(ns);
+			if ( jschema == null ) {
 				String details = String.format("unknown namespace: namespace='%s'", ns);
 				throw new ColumnSelectionException(details);
 			}
 			
-			FStream.of(sds.schema().fields())
-					.forEach(col -> m_selecteds.add(new SelectedColumnInfo(ns, col.name())));
+			FStream.from(jschema.getColumnAll())
+					.forEach(col -> m_selecteds.add(new SelectedColumnInfo(ns, col.getName().get())));
 			
 			return null;
 		}
@@ -153,16 +171,16 @@ public class ColumnSelector {
 			
 			NamespaceContext nsCtx = ctx.getChild(NamespaceContext.class, 0);
 			String ns = (nsCtx != null) ? nsCtx.getChild(0).getText() : "";
-			SpatialDataset jschema = m_datasets.get(ns);
+			JarveySchema jschema = m_schemas.get(ns);
 			if ( jschema == null ) {
 				String details = String.format("unknown namespace: namespace='%s'", ns);
 				throw new ColumnSelectionException(details);
 			}
 			
-			Set<String> keys = FStream.from(colNameList).map(String::toLowerCase).toSet();
-			FStream.of(jschema.schema().fields())
-					.filter(c -> !keys.contains(c.name().toLowerCase()))
-					.map(col -> new SelectedColumnInfo(ns, col.name()))
+			Set<CIString> keys = FStream.from(colNameList).map(CIString::of).toSet();
+			FStream.from(jschema.getColumnAll())
+					.filter(c -> !keys.contains(c.getName()))
+					.map(col -> new SelectedColumnInfo(ns, col.getName().get()))
 					.forEach(m_selecteds::add);
 			
 			return null;
@@ -222,15 +240,15 @@ public class ColumnSelector {
 		
 		private void handleLiteral(String ns, String colName, String alias)
 			throws ColumnSelectionException {
-			SpatialDataset jschema = m_datasets.get(ns);
+			JarveySchema jschema = m_schemas.get(ns);
 			if ( jschema == null ) {
 				String details = String.format("unknown namespace: namespace='%s'", ns);
 				throw new ColumnSelectionException(details);
 			}
 			
-			SelectedColumnInfo info = FStream.of(jschema.schema().fields())
-											.filter(f -> f.name().equals(colName))
-											.map(field -> new SelectedColumnInfo(ns, field.name()))
+			SelectedColumnInfo info = FStream.from(jschema.getColumnAll())
+											.filter(c -> c.getName().equals(colName))
+											.map(c -> new SelectedColumnInfo(ns, c.getName().get()))
 											.findFirst()
 											.getOrThrow(() -> {
 												String details = String.format("unknown column: [%s:%s], schema=%s",

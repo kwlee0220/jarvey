@@ -8,10 +8,10 @@ import static org.apache.spark.sql.functions.when;
 
 import org.apache.spark.sql.SaveMode;
 
-import utils.StopWatch;
-
 import jarvey.JarveySession;
-import jarvey.SpatialDataset;
+import jarvey.SpatialDataFrame;
+
+import utils.StopWatch;
 
 /**
  * 
@@ -32,15 +32,15 @@ public class ConcatPoliticals {
 		
 		StopWatch watch = StopWatch.start();
 		
-		SpatialDataset li = jarvey.read().dataset(LI);
-		SpatialDataset emd = jarvey.read().dataset(EMD)
+		SpatialDataFrame li = jarvey.read().dataset(LI);
+		SpatialDataFrame emd = jarvey.read().dataset(EMD)
 									.withColumnRenamed("the_geom", "emd_the_geom");
-		SpatialDataset sgg = jarvey.read().dataset(SGG)
+		SpatialDataFrame sgg = jarvey.read().dataset(SGG)
 									.select("sig_cd", "sig_kor_nm");
-		SpatialDataset sd = jarvey.read().dataset(SID)
+		SpatialDataFrame sd = jarvey.read().dataset(SID)
 									.select("ctprvn_cd", "ctp_kor_nm");
 		
-		SpatialDataset res;
+		SpatialDataFrame res;
 		res = li.withRegularColumn("emd_cd2", substring(col("li_cd"), 0, 8));
 		res = res.join(emd, col("emd_cd2").equalTo(col("emd_cd")), "right");
 		res = res.withRegularColumn("bjd_nm", when(col("li_cd").isNotNull(),
@@ -49,22 +49,23 @@ public class ConcatPoliticals {
 				.withRegularColumn("bjd_cd", when(col("li_cd").isNotNull(), col("li_cd"))
 										.otherwise(concat(col("emd_cd"), lit("00"))))
 				.withRegularColumn("the_geom", when(col("li_cd").isNull(), col("emd_the_geom")));
-		res = res.select(col("the_geom"), col("bjd_cd"), col("bjd_nm"), col("emd_cd"),
-						col("emd_kor_nm").as("emd_nm"), col("li_cd"), col("li_kor_nm").as("li_nm"));
+		res = res.select("the_geom", "bjd_cd", "bjd_nm", "emd_cd", "emd_kor_nm", "li_cd", "li_kor_nm")
+				.withColumnRenamed("emd_kor_nm", "emd_nm")
+				.withColumnRenamed("li_kor_nm", "li_nm");
 		res = res.withRegularColumn("sig_cd2", substring(col("bjd_cd"), 0, 5))
 					.join(sgg, col("sig_cd2").equalTo(col("sig_cd")), "inner");
 		res = res.withRegularColumn("bjd_nm", when(col("sig_kor_nm").notEqual("세종특별자치시"),
 											concat(col("sig_kor_nm"), lit(" "), col("bjd_nm"))))
-					.select(col("the_geom"), col("bjd_cd"), col("bjd_nm"),
-							col("sig_cd2").as("sgg_cd"), col("sig_kor_nm").as("sgg_nm"),
-							col("emd_cd"), col("emd_nm"), col("li_cd"), col("li_nm"));
+					.select("the_geom", "bjd_cd", "bjd_nm", "sig_cd2", "sig_kor_nm", "emd_cd", "emd_nm", "li_cd", "li_nm")
+					.withColumnRenamed("sig_cd2", "sgg_cd")
+					.withColumnRenamed("sig_kor_nm", "sgg_nm");
 		res = res.withRegularColumn("sid_cd2", substring(col("bjd_cd"), 0, 2))
 					.join(sd, col("sid_cd2").equalTo(col("ctprvn_cd")), "inner")
 					.withRegularColumn("bjd_nm", concat(col("ctp_kor_nm"), lit(" "), col("bjd_nm")))
-					.select(col("the_geom"), col("bjd_cd"), col("bjd_nm"),
-							col("ctprvn_cd").as("sid_cd"), col("ctp_kor_nm").as("sid_nm"),
-							col("sgg_cd"), col("sgg_nm"), col("emd_cd"), col("emd_nm"),
-							col("li_cd"), col("li_nm"));
+					.select("the_geom", "bjd_cd", "bjd_nm", "ctprvn_cd", "ctp_kor_nm",
+							"sgg_cd", "sgg_nm", "emd_cd", "emd_nm", "li_cd", "li_nm")
+					.withColumnRenamed("ctprvn_cd", "sid_cd")
+					.withColumnRenamed("ctp_kor_nm", "sid_nm");
 		res = res.coalesce(1);
 		
 		res.writeSpatial().mode(SaveMode.Overwrite).dataset(OUTPUT);

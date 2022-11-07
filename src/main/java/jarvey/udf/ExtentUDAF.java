@@ -3,24 +3,24 @@ package jarvey.udf;
 import org.apache.spark.sql.Encoder;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.encoders.RowEncoder;
-import org.apache.spark.sql.catalyst.expressions.GenericRow;
 import org.apache.spark.sql.expressions.Aggregator;
+import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 
-import jarvey.type.EnvelopeValue;
+import jarvey.type.EnvelopeBean;
+import jarvey.type.GeometryBean;
 import jarvey.type.GeometryType;
-import jarvey.type.GeometryValue;
 
 
 /**
  * 
  * @author Kang-Woo Lee (ETRI)
  */
-public class ExtentUDAF extends Aggregator<Row,Row,Row> {
+public class ExtentUDAF extends Aggregator<Row,EnvelopeBean,EnvelopeBean> {
 	private static final long serialVersionUID = 1L;
 
 	public static final StructType INPUT_SCHEMA = new StructType(new StructField[] {
@@ -29,20 +29,21 @@ public class ExtentUDAF extends Aggregator<Row,Row,Row> {
 	public static final Encoder<Row> INPUT_ENCODER = RowEncoder.apply(INPUT_SCHEMA);
 	
 	@Override
-	public Row zero() {
-		return toSingleEnvelopeRow(EnvelopeValue.empty());
+	public EnvelopeBean zero() {
+		return new EnvelopeBean();
 	}
 
 	@Override
-	public Row reduce(Row buffer, Row input) {
+	public EnvelopeBean reduce(EnvelopeBean buffer, Row input) {
 		if ( input != null ) {
-			Geometry geom = GeometryValue.deserialize(input.getAs(0));
+			Geometry geom = GeometryBean.deserialize(input.getAs(0));
 			if ( geom != null ) {
-				Envelope accum = EnvelopeValue.toEnvelope(buffer.getAs(0));
+				Envelope accum = buffer.asEnvelope();
 				Envelope envl = geom.getEnvelopeInternal();
 				accum.expandToInclude(envl);
+				buffer.update(accum);
 				
-				return toSingleEnvelopeRow(new EnvelopeValue(accum));
+				return buffer;
 			}
 		}
 		
@@ -50,30 +51,34 @@ public class ExtentUDAF extends Aggregator<Row,Row,Row> {
 	}
 
 	@Override
-	public Row merge(Row buffer1, Row buffer2) {
-		Envelope accum1 = EnvelopeValue.toEnvelope(buffer1.getAs(0));
-		Envelope accum2 = EnvelopeValue.toEnvelope(buffer2.getAs(0));
+	public EnvelopeBean merge(EnvelopeBean buffer1, EnvelopeBean buffer2) {
+		Envelope accum1 = buffer1.asEnvelope();
+		Envelope accum2 = buffer2.asEnvelope();
 		accum1.expandToInclude(accum2);
 
-		return toSingleEnvelopeRow(new EnvelopeValue(accum1));
+		return buffer1;
 	}
 
 	@Override
-	public Row finish(Row reduction) {
-		return reduction;
+	public EnvelopeBean finish(EnvelopeBean reduction) {
+		return new EnvelopeBean(reduction.getCoordinates());
 	}
 
 	@Override
-	public Encoder<Row> bufferEncoder() {
-		return EnvelopeValue.ENCODER;
+	public Encoder<EnvelopeBean> bufferEncoder() {
+		return EnvelopeBean.ENCODER;
 	}
 
 	@Override
-	public Encoder<Row> outputEncoder() {
-		return EnvelopeValue.ENCODER;
+	public Encoder<EnvelopeBean> outputEncoder() {
+		return EnvelopeBean.ENCODER;
 	}
 	
-	private static final Row toSingleEnvelopeRow(EnvelopeValue envl) {
-		return new GenericRow(new Object[]{ envl.toCoordinates() });
+	public DataType[] toOutputDataTypes(StructType schema) {
+		return new DataType[]{schema.fields()[0].dataType()};
 	}
+	
+//	private static Row toSingleEnvelopeRow(EnvelopeValue envl) {
+//		return new GenericRow(new Object[]{envl.toSparkValue()});
+//	}
 }

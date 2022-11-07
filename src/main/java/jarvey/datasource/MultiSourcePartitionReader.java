@@ -17,14 +17,15 @@ import utils.stream.FStream;
  * 
  * @author Kang-Woo Lee (ETRI)
  */
-public abstract class MultiSourcePartitionReader<T> extends ChainedPartitionReader {
+public abstract class MultiSourcePartitionReader<T,R extends PartitionReader<InternalRow>>
+	extends ChainedPartitionReader<R> {
 	private static final Logger s_logger = LoggerFactory.getLogger(MultiSourcePartitionReader.class);
 	
 	private final FStream<T> m_sources;
 	private FOption<T> m_current = null;
 	private StopWatch m_watch = StopWatch.create();
 	
-	abstract protected PartitionReader<InternalRow> getPartitionReader(T source) throws IOException;
+	abstract protected R getPartitionReader(T source) throws IOException;
 	
 	protected MultiSourcePartitionReader(FStream<T> sources) {
 		Utilities.checkNotNullArgument(sources, "sources is null");
@@ -54,7 +55,7 @@ public abstract class MultiSourcePartitionReader<T> extends ChainedPartitionRead
 	}
 
 	@Override
-	protected PartitionReader<InternalRow> getNextPartitionReader() throws IOException {
+	protected R getNextPartitionReader() throws IOException {
 		if ( m_current != null ) {
 			getLogger().info("loaded: '{}', elapsed={}", m_current.get(), m_watch.stopAndGetElpasedTimeString());
 		}
