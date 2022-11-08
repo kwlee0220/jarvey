@@ -26,7 +26,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.collect.Maps;
 
-import jarvey.FilePath;
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.datasource.shp.ShapefileDataSets;
@@ -41,6 +40,7 @@ import utils.CSV;
 import utils.Utilities;
 import utils.geo.util.CoordinateTransform;
 import utils.geo.util.GeometryUtils;
+import utils.io.FilePath;
 import utils.stream.FStream;
 
 /**

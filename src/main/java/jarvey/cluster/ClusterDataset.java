@@ -20,7 +20,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 
-import jarvey.FilePath;
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.cluster.EstimateQuadSpaces.PartitionEstimate;
@@ -33,6 +32,7 @@ import utils.StopWatch;
 import utils.UnitUtils;
 import utils.Utilities;
 import utils.func.Tuple;
+import utils.io.FilePath;
 import utils.stream.FStream;
 
 /**

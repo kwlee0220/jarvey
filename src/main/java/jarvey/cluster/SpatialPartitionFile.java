@@ -9,7 +9,6 @@ import org.apache.spark.sql.Row;
 
 import com.google.common.base.Objects;
 
-import jarvey.FilePath;
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.datasource.JarveyDataFrameReader;
@@ -19,6 +18,7 @@ import jarvey.type.JarveySchema;
 
 import utils.UnitUtils;
 import utils.func.Lazy;
+import utils.io.FilePath;
 import utils.stream.FStream;
 
 /**

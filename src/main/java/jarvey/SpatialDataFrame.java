@@ -50,7 +50,6 @@ import org.apache.spark.storage.StorageLevel;
 import org.geotools.geometry.jts.Geometries;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.io.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +89,6 @@ import jarvey.optor.geom.join.CoGroupSpatialInnerJoin;
 import jarvey.optor.geom.join.SpatialDataFrameSummary;
 import jarvey.optor.geom.join.SpatialJoinOptions;
 import jarvey.support.DataFrames;
-import jarvey.support.GeoUtils;
 import jarvey.support.MapTile;
 import jarvey.support.RecordLite;
 import jarvey.type.EnvelopeType;

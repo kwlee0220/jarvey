@@ -3,9 +3,6 @@ package jarvey.test;
 import static org.apache.spark.sql.functions.callUDF;
 import static org.apache.spark.sql.functions.col;
 
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.sql.Row;
-
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 

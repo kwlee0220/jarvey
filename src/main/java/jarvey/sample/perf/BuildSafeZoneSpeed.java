@@ -1,7 +1,6 @@
 package jarvey.sample.perf;
 
 import static org.apache.spark.sql.functions.avg;
-import static org.apache.spark.sql.functions.broadcast;
 import static org.apache.spark.sql.functions.count;
 import static org.apache.spark.sql.functions.desc;
 import static org.apache.spark.sql.functions.monotonically_increasing_id;

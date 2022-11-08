@@ -32,12 +32,13 @@ import jarvey.type.DataUtils;
 import jarvey.type.GeometryColumnInfo;
 import jarvey.type.JarveyColumn;
 import jarvey.type.JarveySchema;
-import jarvey.type.temporal.TemporalPointType;
 import jarvey.type.temporal.TemporalUDFs;
 import jarvey.udf.SpatialUDFs;
 
 import utils.Utilities;
 import utils.func.Unchecked;
+import utils.io.FilePath;
+import utils.io.LfsPath;
 import utils.stream.FStream;
 
 /**

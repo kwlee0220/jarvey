@@ -13,7 +13,6 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;
 import org.geotools.geometry.jts.Geometries;
 
-import jarvey.FilePath;
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.type.GeometryColumnInfo;
@@ -22,6 +21,7 @@ import jarvey.type.JarveyDataType;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
 
+import utils.io.FilePath;
 import utils.stream.FStream;
 
 /**

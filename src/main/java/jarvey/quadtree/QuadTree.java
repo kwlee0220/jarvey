@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 
 import jarvey.optor.geom.SpatialRelation;
 import jarvey.support.MapTile;
+
 import utils.Utilities;
 import utils.geo.quadtree.TooBigValueException;
 import utils.stream.FStream;

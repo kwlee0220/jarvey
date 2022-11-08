@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import jarvey.DatasetType;
-import jarvey.FilePath;
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.cluster.ClusterDataset;
@@ -59,6 +58,7 @@ import utils.PicocliSubCommand;
 import utils.StopWatch;
 import utils.UnitUtils;
 import utils.func.Tuple;
+import utils.io.FilePath;
 import utils.stream.FStream;
 
 /**

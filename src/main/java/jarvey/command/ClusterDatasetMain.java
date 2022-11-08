@@ -1,6 +1,5 @@
 package jarvey.command;
 
-import jarvey.FilePath;
 import jarvey.JarveySession;
 import jarvey.cluster.ClusterDataset;
 import jarvey.cluster.ClusterDatasetOptions;
@@ -12,6 +11,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import utils.UnitUtils;
+import utils.io.FilePath;
 
 /**
  * 

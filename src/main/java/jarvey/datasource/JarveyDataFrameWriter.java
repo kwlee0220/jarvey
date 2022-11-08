@@ -8,11 +8,11 @@ import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
 
-import jarvey.FilePath;
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.type.JarveySchema;
 
+import utils.io.FilePath;
 import utils.stream.FStream;
 
 

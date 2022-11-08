@@ -2,12 +2,11 @@ package jarvey.test;
 
 import org.apache.hadoop.fs.Path;
 
-import jarvey.FilePath;
 import jarvey.JarveySession;
-import jarvey.LfsPath;
 import jarvey.SpatialDataFrame;
 
-import utils.stream.FStream;
+import utils.io.FilePath;
+import utils.io.LfsPath;
 
 
 public class TestImportFromCsv {
