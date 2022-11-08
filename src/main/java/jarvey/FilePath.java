@@ -15,10 +15,9 @@ import utils.stream.FStream;
  */
 public interface FilePath {
 	/**
-	 * Returns the name of the file or directory denoted by this abstract pathname.
+	 * 본 파일의 이름을 반환한다..
 	 *
-	 * @return The name of the file or directory denoted by this abstract pathname,
-	 * or the empty string if this pathname's name sequence is empty
+	 * @return 파일 이름.
 	 */
 	public String getName();
 	
