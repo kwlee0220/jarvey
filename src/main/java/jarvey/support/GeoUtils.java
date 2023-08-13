@@ -19,6 +19,7 @@ import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import com.google.common.collect.Lists;
 
 import utils.func.FOption;
+import utils.func.Funcs;
 import utils.func.Tuple;
 import utils.geo.util.GeoClientUtils;
 import utils.geo.util.GeometryUtils;
@@ -275,13 +276,11 @@ public class GeoUtils extends GeoClientUtils {
 	 * @return	가장 짧은 거리의 선분과 해당 선분까지의 거리
 	 */
 	public static Tuple<LineString,Double> findClosestLine(Point pt, LineString lineString) {
-		List<Tuple<LineString,Double>> maxLines
-									= FStream.from(breakIntoLines(lineString))
-											.map(t -> GeometryUtils.toLineString(t._1, t._2))
-											.map(line -> Tuple.of(line, pt.distance(line)))
-											.max(Tuple::_2);
-		return (!maxLines.isEmpty())
-					? maxLines.get(0) : Tuple.of(EMPTY_LINESTRING, -1d);
+		Tuple<LineString,Double> maxLine = FStream.from(breakIntoLines(lineString))
+													.map(t -> GeometryUtils.toLineString(t._1, t._2))
+													.map(line -> Tuple.of(line, pt.distance(line)))
+													.max(Tuple::_2);
+		return Funcs.asNonNull(maxLine, () -> Tuple.of(EMPTY_LINESTRING, -1d));
 	}
 	
 	public static Tuple<Point,Double> findClosestPointOnLine(Point pt, LineString lineString) {
