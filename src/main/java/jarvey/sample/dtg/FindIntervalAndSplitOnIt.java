@@ -23,10 +23,10 @@ public class FindIntervalAndSplitOnIt {
 	private static final String INPUT = "tmp/dtg_raw";
 	private static final String OUTPUT = "tmp/xxx";
 	
-	private static final long SEGMENT_MILLIS = UnitUtils.parseDuration("10m");
+	private static final long SEGMENT_MILLIS = UnitUtils.parseDurationMillis("10m");
 	private static final int GROUP_PARTITION_COUNT = 500;
 	private static final String TEMPORAL_POINT_COLUMN = "tpoint";
-	private static final long TRAJ_SPLIT_INTERVAL = UnitUtils.parseDuration("1m");
+	private static final long TRAJ_SPLIT_INTERVAL = UnitUtils.parseDurationMillis("1m");
 	
 	public static final void main(String... args) throws Exception {
 		JarveyLocalCommand.configureLog4j(new File("."), false);

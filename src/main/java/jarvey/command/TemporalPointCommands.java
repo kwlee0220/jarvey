@@ -57,7 +57,7 @@ class TemporalPointCommands {
 		@Option(names= {"-s", "--segment_interval"}, paramLabel="interval", defaultValue="10m",
 				description="segment interval (default: '10m')")
 		private void setSegmentInterval(String interval) {
-			m_segmentInterval = UnitUtils.parseDuration(interval);
+			m_segmentInterval = UnitUtils.parseDurationMillis(interval);
 		}
 		private long m_segmentInterval;
 		

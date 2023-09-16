@@ -41,7 +41,7 @@ public class BuildTemporalPointTest {
 	private final String m_outputDsId;
 	private final String[] m_keyColNames;
 	private final String[] m_xytColNames;
-	private long m_periodMillis = UnitUtils.parseDuration("30m");
+	private long m_periodMillis = UnitUtils.parseDurationMillis("30m");
 	private int m_mergingPartCount = 2000;
 	
 	public BuildTemporalPointTest(JarveySession jarvey, String[] keyColNames, String[] xytColNames,
@@ -56,7 +56,7 @@ public class BuildTemporalPointTest {
 		m_periodMillis = periodMillis;
 	}
 	public void setPeriod(String period) {
-		m_periodMillis = UnitUtils.parseDuration(period);
+		m_periodMillis = UnitUtils.parseDurationMillis(period);
 	}
 	
 	public void setMergingPartitionCount(int count) {

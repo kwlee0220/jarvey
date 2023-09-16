@@ -29,7 +29,7 @@ public class BuildTemporalPointFromDtg {
 	private static final String TEMP_IDX = "tmp/idx";
 	private static final String OUTPUT = "tmp/dtg_tpoints";
 
-	private static final long PERIOD_MILLIS = UnitUtils.parseDuration("30m");
+	private static final long PERIOD_MILLIS = UnitUtils.parseDurationMillis("30m");
 //	private static final int PART_COUNT = 1000;
 	private static final int PART_COUNT = 3;
 	
