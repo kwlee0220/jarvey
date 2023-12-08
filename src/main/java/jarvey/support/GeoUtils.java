@@ -279,7 +279,8 @@ public class GeoUtils extends GeoClientUtils {
 		Tuple<LineString,Double> maxLine = FStream.from(breakIntoLines(lineString))
 													.map(t -> GeometryUtils.toLineString(t._1, t._2))
 													.map(line -> Tuple.of(line, pt.distance(line)))
-													.max(Tuple::_2);
+													.max(Tuple::_2)
+													.get();
 		return Funcs.asNonNull(maxLine, () -> Tuple.of(EMPTY_LINESTRING, -1d));
 	}
 	
