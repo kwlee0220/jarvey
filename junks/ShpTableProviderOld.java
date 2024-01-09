@@ -64,7 +64,7 @@ public class ShpTableProviderOld implements TableProvider {
 
 			return FStream.from(sfType.getAttributeDescriptors())
 							.map(desc -> toField(desc))
-							.foldLeft(new StructType(), (acc, field) -> acc.add(field));
+							.fold(new StructType(), (acc, field) -> acc.add(field));
 		}
 		catch ( IOException e ) {
 			throw new DatasetException("fails to read Shapefile: " + shpFile);

@@ -113,7 +113,7 @@ public class EstimateQuadSpaces implements Callable<Tuple<Integer, TreeSet<Parti
 									return true;
 								}
 							})
-							.collectLeft(new TreeSet<>(), (accum, est) -> accum.add(est));
+							.collect(new TreeSet<>(), (accum, est) -> accum.add(est));
 		if ( outlier.recordCount() > 0 ) {
 			quadSpaces.add(outlier);
 		}

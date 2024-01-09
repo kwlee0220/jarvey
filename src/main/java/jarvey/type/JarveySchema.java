@@ -30,14 +30,14 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.collect.Maps;
 
-import jarvey.datasource.DatasetException;
-import jarvey.support.SchemaUtils;
-
 import utils.CIString;
 import utils.Utilities;
 import utils.func.FOption;
 import utils.func.KeyValue;
 import utils.stream.FStream;
+
+import jarvey.datasource.DatasetException;
+import jarvey.support.SchemaUtils;
 
 /**
  *
@@ -203,7 +203,7 @@ public class JarveySchema implements Serializable {
 		 JarveySchemaBuilder builder
 		 		= FStream.of(cols)
  						.map(this::getColumn)
-				 		.foldLeft(JarveySchema.builder(), JarveySchemaBuilder::addJarveyColumn);
+				 		.fold(JarveySchema.builder(), JarveySchemaBuilder::addJarveyColumn);
 		 builder = builder.setQuadIds(m_quadIds);
 		
 		Set<CIString> targets = FStream.of(cols).map(CIString::of).toSet();
@@ -226,7 +226,7 @@ public class JarveySchema implements Serializable {
 								return jcol;
 							}
 						})
-						.foldLeft(JarveySchema.builder(), (b,c) -> b.addJarveyColumn(c));
+						.fold(JarveySchema.builder(), (b,c) -> b.addJarveyColumn(c));
 		if ( m_defaultGeometryColumn != null && m_defaultGeometryColumn.getName().equals(oldColName) ) {
 			builder = builder.setDefaultGeometryColumn(newColName)
 							.setQuadIds(m_quadIds);
@@ -236,7 +236,7 @@ public class JarveySchema implements Serializable {
 	
 	public static JarveySchema concat(JarveySchema schema1, JarveySchema schema2) {
 		return FStream.from(schema2.getColumnAll())
-						.foldLeft(schema1.toBuilder(), JarveySchemaBuilder::addJarveyColumn)
+						.fold(schema1.toBuilder(), JarveySchemaBuilder::addJarveyColumn)
 						.build();
 	}
 	
@@ -251,7 +251,7 @@ public class JarveySchema implements Serializable {
 		
 		JarveySchemaBuilder builder = FStream.from(m_columns)
 											.filter(c -> !targets.contains(c.getName()))
-											.foldLeft(JarveySchema.builder(),
+											.fold(JarveySchema.builder(),
 													JarveySchemaBuilder::addJarveyColumn);
 		if ( m_defaultGeometryColumn != null ) {
 			String defGeomCol = (targets.contains(m_defaultGeometryColumn.getName()))
@@ -264,7 +264,7 @@ public class JarveySchema implements Serializable {
 	
 	public JarveySchemaBuilder toBuilder() {
 		JarveySchemaBuilder builder = FStream.from(m_columns)
-											.foldLeft(new JarveySchemaBuilder(),
+											.fold(new JarveySchemaBuilder(),
 														(acc, jcol) -> acc.addJarveyColumn(jcol));
 		if ( m_defaultGeometryColumn != null ) {
 			builder.setDefaultGeometryColumn(m_defaultGeometryColumn.getName().get());
@@ -281,7 +281,7 @@ public class JarveySchema implements Serializable {
 	public JarveySchema update(String colName, Function<JarveyColumn,JarveyColumn> updater) {
 		return FStream.from(m_columns)
 						.map(jcol -> (jcol.getName().equals(colName)) ? updater.apply(jcol) : jcol)
-						.foldLeft(builder(), (b, c) -> b.addJarveyColumn(c))
+						.fold(builder(), (b, c) -> b.addJarveyColumn(c))
 						.build();
 	}
 	
@@ -316,7 +316,7 @@ public class JarveySchema implements Serializable {
 		Set<CIString> names = FStream.from(key).map(CIString::of).toSet();
 		return FStream.from(m_columns)
 						.filter(jc -> !names.contains(jc.getName()))
-						.foldLeft(JarveySchema.builder(), (b,c) -> b.addJarveyColumn(c))
+						.fold(JarveySchema.builder(), (b,c) -> b.addJarveyColumn(c))
 						.build();
 	}
 	
@@ -332,7 +332,7 @@ public class JarveySchema implements Serializable {
 		List<Map<String,Object>> infosYaml = (List<Map<String,Object>>)yaml.get("columns");
 		JarveySchemaBuilder builder =  FStream.from(infosYaml)
 											.map(colYaml -> JarveyColumn.fromYaml(-1, colYaml))
-											.foldLeft(JarveySchema.builder(),
+											.fold(JarveySchema.builder(),
 														JarveySchemaBuilder::addJarveyColumn);
 		builder = builder.setDefaultGeometryColumn(FOption.ofNullable((String)yaml.get("default_geometry")).getOrNull());
 		List<Object> qidList = (List<Object>)yaml.get("quad_ids");
@@ -403,7 +403,7 @@ public class JarveySchema implements Serializable {
 		JarveySchemaBuilder builder = FStream.from(columnYamls)
 											.zipWithIndex()
 											.map(t -> JarveyColumn.fromYaml(t._2, t._1))
-											.foldLeft(JarveySchema.builder(), JarveySchemaBuilder::addJarveyColumn);
+											.fold(JarveySchema.builder(), JarveySchemaBuilder::addJarveyColumn);
 		builder = builder.setDefaultGeometryColumn((String)yaml.get("default_geometry"));
 		builder = builder.setQuadIds(FStream.of((Long[])yaml.get("quad_ids")).mapToLong(v -> v).toArray());
 		return builder.build();
@@ -442,7 +442,7 @@ public class JarveySchema implements Serializable {
 		
 		private Object readResolve() {
 			return FStream.from(m_columns)
-							.foldLeft(JarveySchema.builder(), JarveySchemaBuilder::addJarveyColumn)
+							.fold(JarveySchema.builder(), JarveySchemaBuilder::addJarveyColumn)
 							.setDefaultGeometryColumn(m_defGeomColName)
 							.setQuadIds(m_quadIds)
 							.build();

@@ -35,7 +35,7 @@ public class SpatialClusterFile {
 		m_partitions = path.streamChildFilePaths()
 							.filter(UncheckedPredicate.sneakyThrow(SpatialPartitionFile::isPartitionFile))
 							.mapOrThrow(p -> SpatialPartitionFile.fromFilePath(jarvey, p))
-							.collectLeft(Sets.newTreeSet(), (acc,p) -> acc.add(p));
+							.collect(Sets.newTreeSet(), (acc,p) -> acc.add(p));
 	}
 	
 	public FilePath getFilePath() {

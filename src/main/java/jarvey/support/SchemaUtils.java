@@ -29,7 +29,7 @@ public class SchemaUtils {
 	
 	public static SchemaBuilder toBuilder(StructType schema) {
 		return FStream.of(schema.fields())
-						.foldLeft(builder(), (b,f) -> b.addOrReplaceField(f.name(), f.dataType()));
+						.fold(builder(), (b,f) -> b.addOrReplaceField(f.name(), f.dataType()));
 	}
 	
 	public static SchemaBuilder builder() {
@@ -105,7 +105,7 @@ public class SchemaUtils {
 	
 	public static StructType subrange(StructType schema, int begin, int end) {
 		return FStream.of(Arrays.copyOfRange(schema.fields(), begin, end))
-		 				.foldLeft(builder(), SchemaBuilder::addOrReplaceField)
+		 				.fold(builder(), SchemaBuilder::addOrReplaceField)
 						.build();
 	}
 
@@ -115,7 +115,7 @@ public class SchemaUtils {
 	public static StructType select(StructType schema, Iterable<String> colNames) {
 		return FStream.from(colNames)
  						.map(n -> get(schema, n))
-				 		.foldLeft(builder(), SchemaBuilder::addOrReplaceField)
+				 		.fold(builder(), SchemaBuilder::addOrReplaceField)
 				 		.build();
 	}
 	
@@ -128,7 +128,7 @@ public class SchemaUtils {
 		Set<String> names = Sets.newHashSet(colNames);
 		return FStream.of(schema.fields())
 						.filter(f -> !names.contains(f.name()))
-						.foldLeft(builder(), SchemaBuilder::addOrReplaceField)
+						.fold(builder(), SchemaBuilder::addOrReplaceField)
 						.build();
 	}
 }

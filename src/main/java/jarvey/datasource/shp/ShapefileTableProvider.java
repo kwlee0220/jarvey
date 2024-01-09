@@ -35,7 +35,7 @@ public class ShapefileTableProvider implements TableProvider {
 			SimpleFeatureType sfType = ShapefileDataSets.getSimpleFeatureType(start);
 			return FStream.from(sfType.getAttributeDescriptors())
 							.map(desc -> toField(desc))
-							.foldLeft(new StructType(), (acc, field) -> acc.add(field));
+							.fold(new StructType(), (acc, field) -> acc.add(field));
 		}
 		catch ( IOException e ) {
 			throw new DatasetException("fails to read Shapefile: " + start);

@@ -56,7 +56,7 @@ public class Project extends RecordLevelFunction {
 		
 		m_outputSchema = FStream.from(selection)
 							.filter(info -> info.getAlias() != null)
-							.foldLeft(outSchema, (acc,info) -> acc.rename(info.getColumnName(), info.getAlias()));
+							.fold(outSchema, (acc,info) -> acc.rename(info.getColumnName(), info.getAlias()));
 		
 		super.initialize(jarvey, inputSchema);
 	}

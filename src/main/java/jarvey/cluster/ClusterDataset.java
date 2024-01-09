@@ -240,7 +240,7 @@ public class ClusterDataset implements Callable<SpatialClusterFile> {
 		static ClusterInfo from(SpatialClusterFile scFile) throws IOException {
 			return scFile.streamPartitions(true)
 						.map(p -> new PartitionInfo(p.getQuadId(), p.getQuadKey(), p.count(), p.getLength()))
-						.collectLeft(new ClusterInfo(), (c, p) -> c.addPartition(p));
+						.collect(new ClusterInfo(), (c, p) -> c.addPartition(p));
 		}
 		
 		long[] quadIds() {

@@ -56,6 +56,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 
+import utils.Utilities;
+import utils.func.FOption;
+import utils.func.Tuple;
+import utils.geo.util.GeometryUtils;
+import utils.stream.FStream;
+
 import jarvey.cluster.QuadSpacePartitioner;
 import jarvey.datasource.DatasetOperationException;
 import jarvey.datasource.JarveyDataFrameWriter;
@@ -101,11 +107,6 @@ import jarvey.type.JarveySchema;
 import jarvey.type.JarveySchemaBuilder;
 
 import scala.Tuple2;
-import utils.Utilities;
-import utils.func.FOption;
-import utils.func.Tuple;
-import utils.geo.util.GeometryUtils;
-import utils.stream.FStream;
 
 /**
  *
@@ -453,7 +454,7 @@ public class SpatialDataFrame implements Serializable {
 		
 		Dataset<Row> outputDf = leftDf.join(rightDf, joinExpr, type);
 		JarveySchema jschema = FStream.from(right.getJarveySchema().getColumnAll())
-										.foldLeft(m_jschema.toBuilder(), (b,c) -> b.addJarveyColumn(c))
+										.fold(m_jschema.toBuilder(), (b,c) -> b.addJarveyColumn(c))
 										.build();
 		return new SpatialDataFrame(m_jarvey, jschema, outputDf);
 	}
@@ -463,7 +464,7 @@ public class SpatialDataFrame implements Serializable {
 		
 		Dataset<Row> outputDf = leftDf.join(rightDf, joinExpr);
 		JarveySchema jschema = FStream.from(right.getJarveySchema().getColumnAll())
-										.foldLeft(m_jschema.toBuilder(), (b,c) -> b.addJarveyColumn(c))
+										.fold(m_jschema.toBuilder(), (b,c) -> b.addJarveyColumn(c))
 										.build();
 		return new SpatialDataFrame(m_jarvey, jschema, outputDf);
 	}

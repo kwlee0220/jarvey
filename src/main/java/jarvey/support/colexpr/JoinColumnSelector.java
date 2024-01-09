@@ -15,6 +15,12 @@ import org.apache.spark.sql.RowFactory;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import utils.CIString;
+import utils.Utilities;
+import utils.func.FOption;
+import utils.func.Tuple;
+import utils.stream.FStream;
+
 import jarvey.support.RecordLite;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AliasContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AllButContext;
@@ -30,12 +36,6 @@ import jarvey.support.colexpr.ColumnSelectionExprParser.SelectionExprContext;
 import jarvey.type.JarveyColumn;
 import jarvey.type.JarveySchema;
 import jarvey.type.JarveySchemaBuilder;
-
-import utils.CIString;
-import utils.Utilities;
-import utils.func.FOption;
-import utils.func.Tuple;
-import utils.stream.FStream;
 
 /**
  * 
@@ -60,7 +60,7 @@ public class JoinColumnSelector implements Serializable {
 		m_selection = parseColumnExpression(m_colExpr);
 		JarveySchemaBuilder builder
 				= FStream.from(m_selection)
-						.foldLeft(JarveySchema.builder(), (bldr, cinfo) -> addJarveyColumn(bldr, cinfo));
+						.fold(JarveySchema.builder(), (bldr, cinfo) -> addJarveyColumn(bldr, cinfo));
 		
 		// Default geometry column을 설정한다.
 		//
