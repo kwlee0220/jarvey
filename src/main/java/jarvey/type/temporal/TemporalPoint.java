@@ -20,14 +20,14 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import utils.Indexed;
+import utils.UnitUtils;
+import utils.io.IOUtils;
+import utils.stream.FStream;
+
 import jarvey.datasource.DatasetOperationException;
 import jarvey.support.GeoUtils;
 import jarvey.support.MapTile;
-
-import utils.UnitUtils;
-import utils.func.Tuple;
-import utils.io.IOUtils;
-import utils.stream.FStream;
 
 /**
  *
@@ -126,12 +126,12 @@ public class TemporalPoint implements Comparable<TemporalPoint> {
 								.buffer(2, 1)
 								.filter(pair -> pair.size() > 1)
 								.filter(pair -> {
-									Tuple<TimedPoint,Integer> tup1 = pair.get(0);
-									Tuple<TimedPoint,Integer> tup2 = pair.get(1);
-									long delta = tup2._1.getT() - tup1._1.getT();
+									Indexed<TimedPoint> tup1 = pair.get(0);
+									Indexed<TimedPoint> tup2 = pair.get(1);
+									long delta = tup2.value().getT() - tup1.value().getT();
 									return delta > maxIdleSeconds;
 								})
-								.map(pair -> pair.get(0)._2)
+								.map(pair -> pair.get(0).index())
 								.toList();
 		
 		if ( lastIndexes.size() == 0 ) {

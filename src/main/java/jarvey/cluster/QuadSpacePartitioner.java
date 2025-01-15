@@ -9,10 +9,10 @@ import org.apache.spark.Partitioner;
 
 import com.google.common.collect.Sets;
 
-import jarvey.support.MapTile;
-
 import utils.Utilities;
 import utils.stream.FStream;
+
+import jarvey.support.MapTile;
 
 
 /**
@@ -32,7 +32,7 @@ public class QuadSpacePartitioner extends Partitioner {
 		// qid를 기준으로 sort하기 때문에 outlier quid가 0번째 위치하게 됨.
 		QuadSpacePartition[] partitions = FStream.from(qids)
 												.zipWithIndex()
-												.map(t -> new QuadSpacePartition(t._2, t._1))
+												.map(t -> new QuadSpacePartition(t.index(), t.value()))
 												.toArray(QuadSpacePartition.class);
 		Utilities.checkArgument(partitions.length > 0, "empty quadkeys");
 		

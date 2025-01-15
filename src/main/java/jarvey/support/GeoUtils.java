@@ -19,7 +19,6 @@ import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import com.google.common.collect.Lists;
 
 import utils.func.FOption;
-import utils.func.Funcs;
 import utils.func.Tuple;
 import utils.geo.util.GeoClientUtils;
 import utils.geo.util.GeometryUtils;
@@ -281,7 +280,7 @@ public class GeoUtils extends GeoClientUtils {
 													.map(line -> Tuple.of(line, pt.distance(line)))
 													.max(Tuple::_2)
 													.get();
-		return Funcs.asNonNull(maxLine, () -> Tuple.of(EMPTY_LINESTRING, -1d));
+		return FOption.getOrElse(maxLine, () -> Tuple.of(EMPTY_LINESTRING, -1d));
 	}
 	
 	public static Tuple<Point,Double> findClosestPointOnLine(Point pt, LineString lineString) {

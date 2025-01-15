@@ -10,6 +10,11 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import utils.PicocliCommand;
+import utils.UsageHelp;
+import utils.func.FOption;
+import utils.io.FileUtils;
+
 import jarvey.JarveySession;
 
 import picocli.CommandLine;
@@ -19,10 +24,6 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.RunLast;
 import picocli.CommandLine.Spec;
-import utils.PicocliCommand;
-import utils.UsageHelp;
-import utils.Utilities;
-import utils.func.FOption;
 
 /**
  * 
@@ -62,7 +63,7 @@ public abstract class JarveyCommand implements PicocliCommand<JarveySession> {
 		else {
 			return FOption.ofNullable(System.getenv(ENVVAR_HOME))
 							.map(File::new)
-							.getOrElse(Utilities.getCurrentWorkingDir());
+							.getOrElse(FileUtils.getCurrentWorkingDirectory());
 		}
 	}
 	

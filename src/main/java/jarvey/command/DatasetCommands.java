@@ -19,6 +19,14 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import utils.CSV;
+import utils.PicocliSubCommand;
+import utils.StopWatch;
+import utils.UnitUtils;
+import utils.func.Tuple;
+import utils.io.FilePath;
+import utils.stream.FStream;
+
 import jarvey.DatasetType;
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
@@ -53,13 +61,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import utils.CSV;
-import utils.PicocliSubCommand;
-import utils.StopWatch;
-import utils.UnitUtils;
-import utils.func.Tuple;
-import utils.io.FilePath;
-import utils.stream.FStream;
 
 /**
  * 
@@ -140,8 +141,8 @@ public class DatasetCommands {
 			if ( !m_displayGeom ) {
 				FStream.from(columns)
 						.zipWithIndex()
-						.filter(t -> t._1.getJarveyDataType().isGeometryType())
-						.forEach(t -> mask[t._2] = false);
+						.filter(t -> t.value().getJarveyDataType().isGeometryType())
+						.forEach(t -> mask[t.index()] = false);
 			}
 			
 			
@@ -474,8 +475,8 @@ public class DatasetCommands {
 			scFile.streamPartitions(false)
 					.zipWithIndex()
 					.forEach(t -> {
-						int index = t._2 + 1;
-						SpatialPartitionFile spFile = t._1;
+						int index = t.index() + 1;
+						SpatialPartitionFile spFile = t.value();
 						System.out.printf("[%2d/%2d]: %17s(%8d): count=%d, size=%s\n",
 										index, nparts,
 										spFile.getQuadKey(), spFile.getQuadId(), spFile.count(),

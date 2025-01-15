@@ -31,9 +31,9 @@ import org.yaml.snakeyaml.Yaml;
 import com.google.common.collect.Maps;
 
 import utils.CIString;
+import utils.KeyValue;
 import utils.Utilities;
 import utils.func.FOption;
-import utils.func.KeyValue;
 import utils.stream.FStream;
 
 import jarvey.datasource.DatasetException;
@@ -57,7 +57,7 @@ public class JarveySchema implements Serializable {
 		// JarveyColumn의 index값을 확정한다.
 		FStream.from(columns)
 				.zipWithIndex()
-				.forEach(tup -> tup._1.setIndex(tup._2));
+				.forEach(tup -> tup.value().setIndex(tup.index()));
 		
 		// JarveyColumn들로 부터 Spark StructType을 계산한다.
 		m_schema = DataTypes.createStructType(FStream.from(columns)
@@ -139,7 +139,7 @@ public class JarveySchema implements Serializable {
 		return FStream.from(getColumnAll())
 						.map(JarveyColumn::getJarveyDataType)
 						.zipWithIndex()
-						.map(t -> t._1.deserialize(row.get(t._2)))
+						.map(t -> t.value().deserialize(row.get(t.index())))
 						.toList();
 	}
 	
@@ -402,7 +402,7 @@ public class JarveySchema implements Serializable {
 		List<Map<String,Object>> columnYamls = (List<Map<String,Object>>)yaml.get("columns");
 		JarveySchemaBuilder builder = FStream.from(columnYamls)
 											.zipWithIndex()
-											.map(t -> JarveyColumn.fromYaml(t._2, t._1))
+											.map(t -> JarveyColumn.fromYaml(t.index(), t.value()))
 											.fold(JarveySchema.builder(), JarveySchemaBuilder::addJarveyColumn);
 		builder = builder.setDefaultGeometryColumn((String)yaml.get("default_geometry"));
 		builder = builder.setQuadIds(FStream.of((Long[])yaml.get("quad_ids")).mapToLong(v -> v).toArray());
