@@ -15,7 +15,7 @@ import jarvey.cluster.EstimateQuadSpaces;
 import jarvey.cluster.EstimateQuadSpaces.PartitionEstimate;
 import jarvey.cluster.EstimateQuadSpacesOptions;
 
-import utils.func.Tuple;
+import utils.Tuple;
 import utils.stream.FStream;
 
 

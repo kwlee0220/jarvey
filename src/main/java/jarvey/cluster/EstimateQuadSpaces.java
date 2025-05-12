@@ -25,9 +25,9 @@ import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
 
 import utils.StopWatch;
+import utils.Tuple;
 import utils.UnitUtils;
 import utils.Utilities;
-import utils.func.Tuple;
 import utils.stream.FStream;
 
 

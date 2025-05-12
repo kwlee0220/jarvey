@@ -18,8 +18,8 @@ import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 
 import com.google.common.collect.Lists;
 
+import utils.Tuple;
 import utils.func.FOption;
-import utils.func.Tuple;
 import utils.geo.util.GeoClientUtils;
 import utils.geo.util.GeometryUtils;
 import utils.stream.FStream;

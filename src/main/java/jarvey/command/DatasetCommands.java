@@ -22,8 +22,8 @@ import com.google.common.collect.Sets;
 import utils.CSV;
 import utils.PicocliSubCommand;
 import utils.StopWatch;
+import utils.Tuple;
 import utils.UnitUtils;
-import utils.func.Tuple;
 import utils.io.FilePath;
 import utils.stream.FStream;
 

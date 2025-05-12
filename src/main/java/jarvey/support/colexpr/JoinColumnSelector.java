@@ -16,9 +16,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import utils.CIString;
+import utils.Tuple;
 import utils.Utilities;
 import utils.func.FOption;
-import utils.func.Tuple;
 import utils.stream.FStream;
 
 import jarvey.support.RecordLite;

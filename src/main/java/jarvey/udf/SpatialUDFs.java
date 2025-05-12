@@ -38,7 +38,8 @@ import jarvey.type.JarveyDataTypes;
 import jarvey.type.temporal.MakeLineUDAF;
 
 import scala.collection.mutable.WrappedArray;
-import utils.func.Tuple;
+
+import utils.Tuple;
 import utils.geo.util.CoordinateTransform;
 import utils.geo.util.GeoClientUtils;
 import utils.geo.util.GeometryUtils;

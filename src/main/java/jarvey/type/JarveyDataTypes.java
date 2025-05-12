@@ -18,10 +18,10 @@ import org.locationtech.jts.geom.Geometry;
 
 import com.google.common.collect.Maps;
 
+import utils.Tuple;
+
 import jarvey.support.typeexpr.JarveyTypeParser;
 import jarvey.type.temporal.TemporalPointType;
-
-import utils.func.Tuple;
 
 /**
  *

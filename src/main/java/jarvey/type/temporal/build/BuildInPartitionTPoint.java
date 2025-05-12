@@ -17,12 +17,13 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import utils.StopWatch;
+import utils.stream.FStream;
+import utils.stream.KeyValueFStream;
+
 import jarvey.support.Rows;
 import jarvey.type.temporal.TemporalPoint;
 import jarvey.type.temporal.TimedPoint;
-
-import utils.StopWatch;
-import utils.stream.FStream;
 
 /**
  * 
@@ -50,25 +51,25 @@ class BuildInPartitionTPoint implements MapPartitionsFunction<Row, Row> {
 		FStream.from(rows).forEach(this::collect);
 
 		int partId = TaskContext.getPartitionId();
-		return FStream.from(m_groups)
-					.map((key, pts) -> {
-						Object[] values = Arrays.copyOf(key.m_key, m_outColCount);
-						
-						TemporalPoint tpoint = new TemporalPoint(Lists.newArrayList(pts));
-						Row tpRow = tpoint.toRow();
-						values[m_xtyColIdx] = tpRow;
-						
-						return RowFactory.create(values);
-					})
-					.onClose(() -> {
-						if ( s_logger.isInfoEnabled() ) {
-							String msg = String.format("[%4d] %8s: in-partition TemporalPoints: count=%d, elapsed=%s",
-														partId, "built", m_groups.size(),
-														watch.stopAndGetElpasedTimeString());
-							s_logger.info(msg);
-						}
-					})
-					.iterator();
+		return KeyValueFStream.from(m_groups)
+								.map((key, pts) -> {
+									Object[] values = Arrays.copyOf(key.m_key, m_outColCount);
+									
+									TemporalPoint tpoint = new TemporalPoint(Lists.newArrayList(pts));
+									Row tpRow = tpoint.toRow();
+									values[m_xtyColIdx] = tpRow;
+									
+									return RowFactory.create(values);
+								})
+								.onClose(() -> {
+									if ( s_logger.isInfoEnabled() ) {
+										String msg = String.format("[%4d] %8s: in-partition TemporalPoints: count=%d, elapsed=%s",
+																	partId, "built", m_groups.size(),
+																	watch.stopAndGetElpasedTimeString());
+										s_logger.info(msg);
+									}
+								})
+								.iterator();
 	}
 
 	private void collect(Row row) {

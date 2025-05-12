@@ -141,9 +141,10 @@ public final class PointerPartition implements Partition<Pointer> {
 	private List<Enveloped> compact() {
 		List<Enveloped> compacteds = Lists.newArrayList();
 		KeyedGroups<Envelope,Enveloped> groups = FStream.from(m_slots)
-														.groupByKey(v -> v.getEnvelope84());
+														.tagKey(Enveloped::getEnvelope84)
+														.groupByKey();
 		for ( Envelope key: groups.keySet() ) {
-			List<Enveloped> group = groups.getOrEmptyList(key);
+			List<Enveloped> group = groups.get(key);
 			
 			if ( group.size() == 1 ) {
 				compacteds.add(group.get(0));

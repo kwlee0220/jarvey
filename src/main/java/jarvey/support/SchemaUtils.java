@@ -17,6 +17,7 @@ import com.google.common.collect.Sets;
 
 import utils.Utilities;
 import utils.stream.FStream;
+import utils.stream.KeyValueFStream;
 
 /**
  *
@@ -53,9 +54,9 @@ public class SchemaUtils {
 		}
 		
 		public StructType build() {
-			List<StructField> fieldList = FStream.from(m_fields)
-												.map(kv -> DataTypes.createStructField(kv.key(), kv.value(), true))
-												.toList();
+			List<StructField> fieldList = KeyValueFStream.from(m_fields)
+														.map(kv -> DataTypes.createStructField(kv.key(), kv.value(), true))
+														.toList();
 			return DataTypes.createStructType(fieldList);
 		}
 	}

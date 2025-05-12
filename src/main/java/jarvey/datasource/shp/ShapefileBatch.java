@@ -20,9 +20,9 @@ import jarvey.type.GeometryColumnInfo;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveySchema;
 
+import utils.Tuple;
 import utils.UnitUtils;
 import utils.func.FOption;
-import utils.func.Tuple;
 import utils.geo.Shapefile;
 import utils.stream.FStream;
 

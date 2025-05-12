@@ -56,9 +56,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 
+import utils.Tuple;
 import utils.Utilities;
 import utils.func.FOption;
-import utils.func.Tuple;
 import utils.geo.util.GeometryUtils;
 import utils.stream.FStream;
 

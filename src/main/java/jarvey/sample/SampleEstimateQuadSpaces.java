@@ -4,12 +4,12 @@ import java.util.TreeSet;
 
 import org.apache.hadoop.fs.Path;
 
+import utils.Tuple;
+
 import jarvey.JarveySession;
 import jarvey.cluster.EstimateQuadSpaces;
 import jarvey.cluster.EstimateQuadSpaces.PartitionEstimate;
 import jarvey.cluster.EstimateQuadSpacesOptions;
-
-import utils.func.Tuple;
 
 
 public class SampleEstimateQuadSpaces {
