@@ -30,8 +30,8 @@ public class RecordSerDe implements Serializable {
 	
 	private final JarveySchema m_schema;
 	private final JarveyDataType[] m_colTypes;
-	@Nullable private transient WKBReader m_reader = null;
-	@Nullable private transient WKBWriter m_writer = null;
+	private @Nullable transient WKBReader m_reader = null;
+	private @Nullable transient WKBWriter m_writer = null;
 	
 	public static RecordSerDe of(JarveySchema schema) {
 		return new RecordSerDe(schema);

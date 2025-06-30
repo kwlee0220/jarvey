@@ -14,7 +14,7 @@ import utils.io.IOUtils;
  * @author Kang-Woo Lee (ETRI)
  */
 public abstract class ChainedPartitionReader<R extends PartitionReader<InternalRow>> extends AbstractPartitionReader {
-	@Nullable private R m_current = null;	// null이면 first-call 의미
+	private @Nullable R m_current = null;	// null이면 first-call 의미
 	private boolean m_eos = false;
 	
 	/**

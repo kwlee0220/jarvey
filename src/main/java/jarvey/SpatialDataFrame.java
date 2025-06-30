@@ -118,8 +118,8 @@ public class SpatialDataFrame implements Serializable {
 	
 	private final JarveySession m_jarvey;
 	private final JarveySchema m_jschema;
-	@Nullable private Dataset<Row> m_df;
-	@Nullable private transient JavaRDD<RecordLite> m_jrdd = null;
+	private @Nullable Dataset<Row> m_df;
+	private @Nullable transient JavaRDD<RecordLite> m_jrdd = null;
 	
 	SpatialDataFrame(JarveySession jarvey, JarveySchema jschema, Dataset<Row> df) {
 		this(jarvey, jschema, df, null);

@@ -31,7 +31,7 @@ public class SpatialJoinOptions implements Serializable {
 							= new SpatialJoinOptions(SpatialRelation.INTERSECTS, INNER_JOIN, null, false);
 	
 	private final SpatialRelation m_joinExpr;
-	@Nullable private final String m_outputCols;
+	private final @Nullable String m_outputCols;
 	private final String m_joinType;
 	private final boolean m_negated;
 	

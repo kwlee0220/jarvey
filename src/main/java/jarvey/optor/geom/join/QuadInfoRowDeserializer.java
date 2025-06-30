@@ -22,7 +22,7 @@ public class QuadInfoRowDeserializer {
 	private final int m_envlColIdx;
 	private final int m_qidsColIdx;
 	private final int m_partColIdx;
-	@Nullable private transient WKBReader m_reader = null;
+	private @Nullable transient WKBReader m_reader = null;
 
 	public static QuadInfoRowDeserializer of(JarveySchema schema) {
 		return new QuadInfoRowDeserializer(schema);

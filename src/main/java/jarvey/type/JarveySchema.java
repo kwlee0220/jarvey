@@ -49,8 +49,8 @@ public class JarveySchema implements Serializable {
 	private final StructType m_schema;
 	private final Map<CIString,JarveyColumn> m_columnsMap;
 	private final List<JarveyColumn> m_columns;
-	@Nullable private final JarveyColumn m_defaultGeometryColumn;
-	@Nullable private final long[] m_quadIds;
+	private final @Nullable JarveyColumn m_defaultGeometryColumn;
+	private final @Nullable long[] m_quadIds;
 	
 	JarveySchema(List<JarveyColumn> columns, @Nullable String defGeomColName, @Nullable long[] quadIds) {
 		// kwlee
@@ -430,8 +430,8 @@ public class JarveySchema implements Serializable {
 		private static final long serialVersionUID = 1L;
 		
 		private final List<JarveyColumn> m_columns;
-		@Nullable private final String m_defGeomColName;
-		@Nullable private final long[] m_quadIds;
+		private final @Nullable String m_defGeomColName;
+		private final @Nullable long[] m_quadIds;
 		
 		private SerializationProxy(JarveySchema jschema) {
 			m_columns = jschema.m_columns;

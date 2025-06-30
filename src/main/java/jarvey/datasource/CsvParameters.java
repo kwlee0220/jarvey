@@ -16,7 +16,7 @@ import picocli.CommandLine.Option;
 @Command(description="CSV Parameters")
 public class CsvParameters {
 	private Map<String,String> m_options = Maps.newHashMap();
-	@Nullable private String m_pointCols = null;
+	private @Nullable String m_pointCols = null;
 	
 	public Map<String,String> options() {
 		return m_options;

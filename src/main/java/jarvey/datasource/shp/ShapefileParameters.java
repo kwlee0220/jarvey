@@ -16,9 +16,9 @@ import utils.func.FOption;
 public class ShapefileParameters {
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 	
-	@Nullable private Charset m_charset = DEFAULT_CHARSET;
-	@Nullable private FOption<Integer> m_srid = FOption.empty();
-	@Nullable private FOption<Integer> m_nparts = FOption.empty();
+	private @Nullable Charset m_charset = DEFAULT_CHARSET;
+	private @Nullable FOption<Integer> m_srid = FOption.empty();
+	private @Nullable FOption<Integer> m_nparts = FOption.empty();
 	
 	public static ShapefileParameters create() {
 		return new ShapefileParameters();

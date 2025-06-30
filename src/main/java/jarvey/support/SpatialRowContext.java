@@ -21,8 +21,8 @@ import utils.stream.FStream;
 public class SpatialRowContext {
 	private final JarveySchema m_schema;
 	private final JarveyDataType[] m_colTypes;
-	@Nullable private transient WKBReader m_reader = null;
-	@Nullable private transient WKBWriter m_writer = null;
+	private @Nullable transient WKBReader m_reader = null;
+	private @Nullable transient WKBWriter m_writer = null;
 	
 	public static SpatialRowContext of(JarveySchema schema) {
 		return new SpatialRowContext(schema);

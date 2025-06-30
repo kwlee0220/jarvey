@@ -35,7 +35,7 @@ class ShapefileReader implements PartitionReader<InternalRow>, LoggerSettable {
 	private final JarveySchema m_jschema;
 	private final File m_path;
 	private final Charset m_charset;
-	@Nullable private final int[] m_mapping;
+	private final @Nullable int[] m_mapping;
 	
 	private boolean m_closed = false;
 	private SimpleFeatureDataStore m_sfdStore;

@@ -36,7 +36,7 @@ public abstract class JarveyCommand implements PicocliCommand<JarveySession> {
 	@Spec protected CommandSpec m_spec;
 	@Mixin private UsageHelp m_help;
 	
-	@Nullable private File m_homeDir = null;
+	private @Nullable File m_homeDir = null;
 	
 	@Option(names={"-v"}, description={"verbose"})
 	protected boolean m_verbose = false;
@@ -47,7 +47,7 @@ public abstract class JarveyCommand implements PicocliCommand<JarveySession> {
 	@Option(names={"--dataset_root"}, paramLabel="path", description={"HDFS dataset root path"})
 	protected String m_dbRootPath = null;
 	
-	@Nullable private JarveySession m_jarvey;
+	private @Nullable JarveySession m_jarvey;
 	
 	protected abstract void run(JarveySession marmot) throws Exception;
 
