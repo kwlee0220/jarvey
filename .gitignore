@@ -25,6 +25,7 @@
 
 # DNA files
 /classes/
+/bin/
 /test_classes/
 /.gradle/
 /.settings/
