@@ -5,8 +5,5 @@ project(':utils').projectDir = file('../../common/utils')
 include ':utils.geo'
 project(':utils.geo').projectDir = file('../../common/utils.geo')
 
-ext.jarvey_dir = '..'
-['jarvey.common'].each {
-	include ":$it"
-	project(":$it").projectDir = file("$jarvey_dir/$it")
-}
+include ':jarvey.common'
+project(':jarvey.common').projectDir = file('../jarvey.common')

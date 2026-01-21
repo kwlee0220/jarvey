@@ -2,9 +2,9 @@ package jarvey.support;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 import utils.Utilities;
-import utils.func.FOption;
 import utils.stream.FStream;
 
 
@@ -15,7 +15,7 @@ public interface JarveyPath {
 	public String getName();
 	public long getLength();
 	
-	public FOption<JarveyPath> getParent();
+	public Optional<JarveyPath> getParent();
 	public JarveyPath child(String name);
 	
 	/**
@@ -33,7 +33,7 @@ public interface JarveyPath {
 			}
 			
 			return getParent().map(JarveyPath::deleteIfEmptyDirectory)
-								.getOrElse(true);
+								.orElse(true);
 		}
 		else {
 			return true;
@@ -83,9 +83,9 @@ public interface JarveyPath {
 			throw new JarveyFileException("destination exists: path=" + dst);
 		}
 
-		FOption<JarveyPath> oparent = dst.getParent();
+		Optional<JarveyPath> oparent = dst.getParent();
 		if ( oparent.isPresent() ) {
-			JarveyPath parent = oparent.getUnchecked();
+			JarveyPath parent = oparent.get();
 			if ( !parent.exists() ) {
 				if ( !parent.mkdir() ) {
 					throw new JarveyFileException("fails to create destination's parent directory");
