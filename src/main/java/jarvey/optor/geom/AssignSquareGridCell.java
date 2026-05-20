@@ -14,18 +14,18 @@ import org.locationtech.jts.geom.Polygon;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
+import utils.Preconditions;
+import utils.Size2d;
+import utils.Size2i;
+import utils.geo.util.GeoClientUtils;
+import utils.stream.FStream;
+
 import jarvey.support.GeoUtils;
 import jarvey.support.RecordLite;
 import jarvey.type.GeometryType;
 import jarvey.type.GridCell;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
-
-import utils.Size2d;
-import utils.Size2i;
-import utils.Utilities;
-import utils.geo.util.GeoClientUtils;
-import utils.stream.FStream;
 
 /**
  * 
@@ -43,7 +43,7 @@ public class AssignSquareGridCell extends UnaryGeometryRecordFlatMapFunction {
 	private int m_outputColIdx;
 	
 	public AssignSquareGridCell(SquareGrid grid, boolean assignOutside) {
-		Utilities.checkNotNullArgument(grid, "SquareGrid is null");
+		Preconditions.checkNotNullArgument(grid, "SquareGrid is null");
 		
 		m_grid = grid;
 		m_assignOutside = assignOutside;

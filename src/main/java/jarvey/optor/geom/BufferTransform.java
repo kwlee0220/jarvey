@@ -5,7 +5,9 @@ import org.locationtech.jts.operation.buffer.BufferOp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+import utils.Preconditions;
+import utils.func.FOption;
+import utils.geo.util.GeoClientUtils;
 
 import jarvey.support.RecordLite;
 import jarvey.type.DataUtils;
@@ -14,10 +16,6 @@ import jarvey.type.JarveyColumn;
 import jarvey.type.JarveyDataType;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
-import utils.func.FOption;
-import utils.geo.util.GeoClientUtils;
 
 /**
  * 
@@ -44,7 +42,7 @@ public class BufferTransform extends GeometryTransform {
 	
 	private BufferTransform(String distCol, GeomOpOptions opts) {
 		super(opts);
-		Utilities.checkNotNullArgument(distCol, "distance column is null");
+		Preconditions.checkNotNullArgument(distCol, "distance column is null");
 
 		m_distanceCol = distCol;
 		setLogger(s_logger);

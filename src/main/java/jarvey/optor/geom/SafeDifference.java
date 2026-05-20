@@ -4,12 +4,12 @@ import org.geotools.geometry.jts.Geometries;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.precision.GeometryPrecisionReducer;
 
-import jarvey.support.GeoUtils;
-import jarvey.support.JavaGeoms;
-
-import utils.Utilities;
+import utils.Preconditions;
 import utils.func.FOption;
 import utils.geo.util.GeoClientUtils;
+
+import jarvey.support.GeoUtils;
+import jarvey.support.JavaGeoms;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class SafeDifference {
 	}
 	
 	public SafeDifference(Geometries resultType) {
-		Utilities.checkNotNullArgument(resultType, "resultType is null");
+		Preconditions.checkNotNullArgument(resultType, "resultType is null");
 		
 		m_resultType = FOption.of(resultType);
 	}

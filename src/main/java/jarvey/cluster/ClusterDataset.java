@@ -20,6 +20,13 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 
+import utils.Preconditions;
+import utils.StopWatch;
+import utils.Tuple;
+import utils.UnitUtils;
+import utils.io.FilePath;
+import utils.stream.FStream;
+
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.cluster.EstimateQuadSpaces.PartitionEstimate;
@@ -27,13 +34,6 @@ import jarvey.support.MapTile;
 import jarvey.support.RecordLite;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
-
-import utils.StopWatch;
-import utils.Tuple;
-import utils.UnitUtils;
-import utils.Utilities;
-import utils.io.FilePath;
-import utils.stream.FStream;
 
 /**
 *
@@ -49,7 +49,7 @@ public class ClusterDataset implements Callable<SpatialClusterFile> {
 	private final ClusterDatasetOptions m_opts;
 	
 	public ClusterDataset(JarveySession jarvey, String dsId, ClusterDatasetOptions opts) {
-		Utilities.checkArgument(opts.isValid(), "invalid ClusterDatasetOptions");
+		Preconditions.checkArgument(opts.isValid(), "invalid ClusterDatasetOptions");
 		
 		m_jarvey = jarvey;
 		m_dsId = dsId;

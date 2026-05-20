@@ -5,12 +5,12 @@ import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import utils.Preconditions;
+
 import jarvey.support.RecordLite;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
 
 
 /**
@@ -29,8 +29,8 @@ public class ToXY extends GeometryFunction {
 	
 	public ToXY(String xCol, String yCol) {
 		super();
-		Utilities.checkNotNullArgument(xCol, "x-pos column");
-		Utilities.checkNotNullArgument(xCol, "y-pos column");
+		Preconditions.checkNotNullArgument(xCol, "x-pos column");
+		Preconditions.checkNotNullArgument(xCol, "y-pos column");
 		
 		m_xCol = xCol;
 		m_yCol = yCol;

@@ -9,15 +9,14 @@ import org.locationtech.jts.geom.Envelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
+import utils.Preconditions;
+import utils.geo.quadtree.TooBigValueException;
+import utils.stream.FStream;
 
 import jarvey.optor.geom.SpatialRelation;
 import jarvey.support.MapTile;
-
-import utils.Utilities;
-import utils.geo.quadtree.TooBigValueException;
-import utils.stream.FStream;
 
 /**
  * 
@@ -70,7 +69,7 @@ public class QuadTree<T extends Enveloped, P extends Partition<T>> {
 	 * @param partitionSupplier	partition 생성기.
 	 */
 	public QuadTree(Node<T,P> root, Function<String,P> partitionSupplier) {
-		Utilities.checkNotNullArgument(root, "root is null");
+		Preconditions.checkNotNullArgument(root, "root is null");
 
 		m_enforcedQuadKey = null;
 		m_enforcedBounds = null;
@@ -79,7 +78,7 @@ public class QuadTree<T extends Enveloped, P extends Partition<T>> {
 	}
 	
 	QuadTree(String quadKey, Envelope bounds, Node<T,P> root, Function<String,P> partitionSupplier) {
-		Utilities.checkNotNullArgument(root, "root is null");
+		Preconditions.checkNotNullArgument(root, "root is null");
 
 		m_enforcedQuadKey = quadKey;
 		m_enforcedBounds = bounds;
@@ -143,7 +142,7 @@ public class QuadTree<T extends Enveloped, P extends Partition<T>> {
 	 * @throws TooBigValueException	삽입할 데이터가 너무커서 단말노드에 저장할 수 없는 경우.
 	 */
 	public List<LeafNode<T,P>> insert(T value) throws TooBigValueException {
-		Preconditions.checkArgument(value != null);
+		Preconditions.checkNotNullArgument(value, "value is null");
 		
 		checkForExpand(value);
 		

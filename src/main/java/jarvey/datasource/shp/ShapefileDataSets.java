@@ -15,17 +15,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+import utils.Preconditions;
+import utils.geo.Shapefile;
+import utils.geo.SimpleFeatureDataStore;
+import utils.geo.util.CRSUtils;
+import utils.stream.FStream;
+
 import jarvey.datasource.DatasetException;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveyDataType;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
-import utils.geo.Shapefile;
-import utils.geo.SimpleFeatureDataStore;
-import utils.geo.util.CRSUtils;
-import utils.stream.FStream;
 
 /**
  * 
@@ -95,9 +95,9 @@ public class ShapefileDataSets {
 	
 	public static SimpleFeatureType toSimpleFeatureType(String sfTypeName, int srid,
 														JarveySchema jschema) {
-		Utilities.checkNotNullArgument(sfTypeName);
-		Utilities.checkNotNullArgument(srid);
-		Utilities.checkNotNullArgument(jschema);
+		Preconditions.checkNotNullArgument(sfTypeName, "sfTypeName is null");
+		Preconditions.checkNotNullArgument(srid, "srid is null");
+		Preconditions.checkNotNullArgument(jschema, "jschema is null");
 		
 		SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 		builder.setName(sfTypeName);
@@ -139,7 +139,7 @@ public class ShapefileDataSets {
 //	 * @return	RecordSchema
 //	 */
 //	public static RecordSchema toRecordSchema(SimpleFeatureType sfType) {
-//		Utilities.checkNotNullArgument(sfType);
+//		Preconditions.checkNotNullArgument(sfType, "sfType is null");
 //		
 //		RecordSchema.Builder builder;
 //		try {
@@ -165,35 +165,35 @@ public class ShapefileDataSets {
 //	
 //	public static SimpleFeatureRecordStream toRecordStream(SimpleFeatureType sfType,
 //															FeatureIterator<SimpleFeature> iter) {
-//		Utilities.checkNotNullArgument(sfType);
-//		Utilities.checkNotNullArgument(iter);
+//		Preconditions.checkNotNullArgument(sfType, "sfType is null");
+//		Preconditions.checkNotNullArgument(iter, "iter is null");
 //
 //		return new SimpleFeatureRecordStream(sfType, iter);
 //	}
 //	
 //	public static SimpleFeatureRecordStream toRecordStream(FeatureIterator<SimpleFeature> iter) {
-//		Utilities.checkNotNullArgument(iter);
-//		Utilities.checkArgument(iter.hasNext(), "FeatureIterator is empty");
+//		Preconditions.checkNotNullArgument(iter, "iter is null");
+//		Preconditions.checkArgument(iter.hasNext(), "FeatureIterator is empty");
 //
 //		return new SimpleFeatureRecordStream(iter);
 //	}
 //	
 //	public static SimpleFeatureRecordStream toRecordStream(SimpleFeatureCollection sfColl) {
-//		Utilities.checkNotNullArgument(sfColl);
+//		Preconditions.checkNotNullArgument(sfColl, "sfColl is null");
 //		
 //		return toRecordStream(sfColl.getSchema(), sfColl.features());
 //	}
 //	
 //	public static SimpleFeatureRecordStream toRecordStream(SimpleFeatureSource sfSrc)
 //		throws IOException {
-//		Utilities.checkNotNullArgument(sfSrc);
+//		Preconditions.checkNotNullArgument(sfSrc, "sfSrc is null");
 //		
 //		return toRecordStream(sfSrc.getFeatures());
 //	}
 //	
 //	public static List<SimpleFeature> toFeatureList(SimpleFeatureType sfType, RecordStream rset) {
-//		Utilities.checkNotNullArgument(sfType);
-//		Utilities.checkNotNullArgument(rset);
+//		Preconditions.checkNotNullArgument(sfType, "sfType is null");
+//		Preconditions.checkNotNullArgument(rset, "rset is null");
 //		
 //		List<SimpleFeature> features = Lists.newArrayList();
 //		SimpleFeatureBuilder builder = new SimpleFeatureBuilder(sfType);
@@ -214,8 +214,8 @@ public class ShapefileDataSets {
 //	
 //	public static List<SimpleFeature> toFeatureList(SimpleFeatureType sfType,
 //													Iterable<Record> records) {
-//		Utilities.checkNotNullArgument(sfType);
-//		Utilities.checkNotNullArgument(records);
+//		Preconditions.checkNotNullArgument(sfType, "sfType is null");
+//		Preconditions.checkNotNullArgument(records, "records is null");
 //		
 //		SimpleFeatureBuilder builder = new SimpleFeatureBuilder(sfType);
 //		return FStream.from(records).map(r -> builder.buildFeature(null, r.getAll())).toList();
@@ -223,8 +223,8 @@ public class ShapefileDataSets {
 //	
 //	public static SimpleFeatureCollection toFeatureCollection(SimpleFeatureType sfType,
 //																Iterable<Record> records) {
-//		Utilities.checkNotNullArgument(sfType);
-//		Utilities.checkNotNullArgument(records);
+//		Preconditions.checkNotNullArgument(sfType, "sfType is null");
+//		Preconditions.checkNotNullArgument(records, "records is null");
 //		
 //		return new ListFeatureCollection(sfType, toFeatureList(sfType, records));
 //	}

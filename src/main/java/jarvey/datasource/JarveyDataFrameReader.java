@@ -13,6 +13,7 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
@@ -26,6 +27,13 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.collect.Maps;
 
+import utils.CSV;
+import utils.Preconditions;
+import utils.geo.util.CoordinateTransform;
+import utils.geo.util.GeometryUtils;
+import utils.io.FilePath;
+import utils.stream.FStream;
+
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.datasource.shp.ShapefileDataSets;
@@ -35,13 +43,6 @@ import jarvey.support.MapTile;
 import jarvey.type.GeometryColumnInfo;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveySchema;
-
-import utils.CSV;
-import utils.Utilities;
-import utils.geo.util.CoordinateTransform;
-import utils.geo.util.GeometryUtils;
-import utils.io.FilePath;
-import utils.stream.FStream;
 
 /**
  *
@@ -94,7 +95,7 @@ public class JarveyDataFrameReader {
 	}
 
 	public SpatialDataFrame dataset(String dsId) {
-		Utilities.checkNotNullArgument(dsId);
+		Preconditions.checkNotNullArgument(dsId, "dataset id");
 		
 		FilePath dsPath = m_jarvey.getDatasetFilePath(dsId);
 		if ( !dsPath.exists() ) {
@@ -183,8 +184,8 @@ public class JarveyDataFrameReader {
 	 * @return	주어진 영역과 겹치는 레코드들로 구성된 {@link SpatialDataFrame}.
 	 */
 	public SpatialDataFrame clusters(String dsId, Envelope range) {
-		Utilities.checkNotNullArgument(dsId, "cluster dataset id");
-		Utilities.checkNotNullArgument(range, "range");
+		Preconditions.checkNotNullArgument(dsId, "cluster dataset id");
+		Preconditions.checkNotNullArgument(range, "range");
 		
 		long[] keyQids = queryQuadIds(dsId, range);
 		if ( s_logger.isDebugEnabled() ) {
@@ -279,7 +280,7 @@ public class JarveyDataFrameReader {
 			// 주어진 quad-id와 관련된 paritition file만 적재시킨다.
 			Column partSelection = FStream.of(quadIds)
 											.map(qid -> partIdCol.equalTo(lit(qid)))
-											.reduce((c1, c2) -> c1.or(c2));
+											.reduce((c1, c2) -> c1.or(c2)).get();
 			sdf = sdf.filter(partSelection);
 			
 			// 각 레코드의 소속 quad-id와 질의 quid-id들의 교집합을 구하기 위한 column-expression 생성
@@ -319,10 +320,10 @@ public class JarveyDataFrameReader {
 								.filter(qid -> qid != MapTile.OUTLIER_QID)
 								.map(MapTile::fromQuadId)
 								.map(tile -> (Geometry)tile.getBoundsPolygon())
-								.reduce((p1,p2) -> p1.union(p2));
+								.reduce((p1,p2) -> p1.union(p2)).get();
 		Geometry diff = GeometryUtils.toPolygon(range4326).difference(extent);
 		if ( diff.getArea() > 0 ) {
-			keyQids = Utilities.concat(keyQids, -9L);
+			keyQids = ArrayUtils.addAll(keyQids, -9L);
 		}
 		
 		return keyQids;

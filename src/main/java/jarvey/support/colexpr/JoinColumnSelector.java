@@ -16,8 +16,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import utils.CIString;
+import utils.Preconditions;
 import utils.Tuple;
-import utils.Utilities;
 import utils.func.FOption;
 import utils.stream.FStream;
 
@@ -50,7 +50,7 @@ public class JoinColumnSelector implements Serializable {
 	private final Set<SelectedColumnInfo> m_selection;
 	
 	public JoinColumnSelector(JarveySchema left, JarveySchema right, String columnExpression) {
-		Utilities.checkNotNullArgument(columnExpression, "column expression is null");
+		Preconditions.checkNotNullArgument(columnExpression, "column expression is null");
 		
 		m_schemas = Maps.newHashMap();
 		m_schemas.put("left", left);

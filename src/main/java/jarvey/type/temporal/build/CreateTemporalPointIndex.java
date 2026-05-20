@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.spark.api.java.function.MapPartitionsFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoder;
@@ -15,14 +16,13 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import utils.stream.FStream;
+
 import jarvey.JarveySession;
 import jarvey.optor.MapIterator;
 import jarvey.support.MapTile;
 import jarvey.support.SchemaUtils;
 import jarvey.type.temporal.TemporalPoint;
-
-import utils.Utilities;
-import utils.stream.FStream;
 
 
 /**
@@ -70,7 +70,7 @@ public class CreateTemporalPointIndex {
 			
 			String[] keyColNames = SchemaUtils.complement(inputSchema, Arrays.asList("tpoint", "period_id"))
 												.fieldNames();
-			String[] extKeyColNames = Utilities.concat(new String[]{"period_id"}, keyColNames);
+			String[] extKeyColNames = ArrayUtils.addAll(new String[]{"period_id"}, keyColNames);
 			m_extKeyColIdxes = SchemaUtils.fieldIndexes(inputSchema, extKeyColNames);
 			
 			m_qids = qids;

@@ -4,12 +4,12 @@ import javax.annotation.Nullable;
 
 import org.locationtech.jts.geom.Geometry;
 
+import utils.Preconditions;
+
 import jarvey.support.RecordLite;
 import jarvey.type.GeometryColumnInfo;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
 
 /**
  * 
@@ -27,7 +27,7 @@ public abstract class GeometryTransform extends GeometryFunction {
 	abstract protected Geometry transform(@Nullable Geometry geom, RecordLite inputRecord);
 	
 	protected GeometryTransform(GeomOpOptions opts) {
-		Utilities.checkNotNullArgument(opts, "GeomOpOptions");
+		Preconditions.checkNotNullArgument(opts, "GeomOpOptions");
 
 		m_opts = opts;
 	}

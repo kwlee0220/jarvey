@@ -2,6 +2,7 @@ package jarvey.support;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
@@ -10,12 +11,12 @@ import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
+import utils.stream.FStream;
+
 import jarvey.type.JarveyColumn;
 import jarvey.type.JarveySchema;
 
 import scala.collection.JavaConverters;
-import utils.Utilities;
-import utils.stream.FStream;
 
 /**
  * 
@@ -86,6 +87,6 @@ public class Rows {
 	}
 	
 	public static Column[] toColumns(Dataset<Row> rows, String[] colNames, String... colNames2) {
-		return toColumns(rows, Utilities.concat(colNames, colNames2));
+		return toColumns(rows, ArrayUtils.addAll(colNames, colNames2));
 	}
 }

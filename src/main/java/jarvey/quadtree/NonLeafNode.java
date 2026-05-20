@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import jarvey.support.MapTile;
-
-import utils.Utilities;
+import utils.Preconditions;
 import utils.geo.quadtree.TooBigValueException;
+
+import jarvey.support.MapTile;
 
 /**
  * 
@@ -132,7 +132,7 @@ public class NonLeafNode<T extends Enveloped, P extends Partition<T>> extends No
 						catch ( TooBigValueException e ) {
 							if ( leaf.expand() ) {
 								boolean mustBeTrue = leaf.insert(value);
-								Utilities.checkState(mustBeTrue, "Something wrong!!: class=" + getClass());
+								Preconditions.checkState(mustBeTrue, "Something wrong!!: class=" + getClass());
 								inserteds.add(leaf);
 								continue;
 							}

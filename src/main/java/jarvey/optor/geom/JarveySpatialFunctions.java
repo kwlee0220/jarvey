@@ -7,14 +7,14 @@ import org.locationtech.jts.io.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import utils.Preconditions;
+import utils.stream.FStream;
+
 import jarvey.datasource.DatasetOperationException;
 import jarvey.support.GeoUtils;
 import jarvey.support.RecordLite;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
-import utils.stream.FStream;
 
 /**
  * 
@@ -49,8 +49,8 @@ public class JarveySpatialFunctions {
 		private SpatialRelation m_rel;
 		
 		MatchSpatialRelation(Geometry geom, SpatialRelation rel) {
-			Utilities.checkNotNullArgument(geom);
-			Utilities.checkArgument(!geom.isEmpty(), "Geometry is empty");
+			Preconditions.checkNotNullArgument(geom, "Geometry is null");
+			Preconditions.checkArgument(!geom.isEmpty(), "Geometry is empty");
 			
 			m_geom = geom;
 			m_wkb = GeoUtils.toWKB(geom);

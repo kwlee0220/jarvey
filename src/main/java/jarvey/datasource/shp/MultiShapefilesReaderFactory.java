@@ -3,9 +3,9 @@ package jarvey.datasource.shp;
 import org.apache.spark.sql.connector.read.InputPartition;
 import org.apache.spark.sql.connector.read.PartitionReaderFactory;
 
-import jarvey.type.JarveySchema;
+import utils.Preconditions;
 
-import utils.Utilities;
+import jarvey.type.JarveySchema;
 
 
 /**
@@ -27,7 +27,7 @@ class MultiShapefilesReaderFactory implements PartitionReaderFactory {
 
 	@Override
 	public MultiShapefilesReader createReader(InputPartition partition) {
-		Utilities.checkArgument(partition instanceof MultiShapefilesPartition,
+		Preconditions.checkArgument(partition instanceof MultiShapefilesPartition,
 								"invalid InputPartition: not ShpInputPartition, but=" + partition.getClass());
 		MultiShapefilesPartition part = (MultiShapefilesPartition)partition;
 		

@@ -2,13 +2,13 @@ package jarvey.optor;
 
 import java.util.Iterator;
 
+import utils.Preconditions;
+import utils.stream.FStream;
+
 import jarvey.JarveySession;
 import jarvey.support.RecordLite;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
-import utils.stream.FStream;
 
 
 /**
@@ -28,7 +28,7 @@ public class AssignUid extends AbstractRDDFunction {
 	
 	public AssignUid(String colName) {
 		super(true);
-		Utilities.checkNotNullArgument(colName, "id column");
+		Preconditions.checkNotNullArgument(colName, "id column");
 		
 		m_uidColumn = colName;
 	}

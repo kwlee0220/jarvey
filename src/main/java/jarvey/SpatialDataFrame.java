@@ -56,8 +56,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 
+import utils.Preconditions;
 import utils.Tuple;
-import utils.Utilities;
 import utils.func.FOption;
 import utils.geo.util.GeometryUtils;
 import utils.stream.FStream;
@@ -895,7 +895,7 @@ public class SpatialDataFrame implements Serializable {
 	 * @return	명령이 추가된 {@link PlanBuilder} 객체.
 	 */
 	public SpatialDataFrame assignGridCell(SquareGrid grid, boolean assignOutside) {
-		Utilities.checkNotNullArgument(grid, "SquareGrid is null");
+		Preconditions.checkNotNullArgument(grid, "SquareGrid is null");
 
 		return apply(new AssignSquareGridCell(grid, assignOutside));
 	}

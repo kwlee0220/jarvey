@@ -7,9 +7,9 @@ import org.apache.spark.sql.connector.read.PartitionReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import utils.Preconditions;
 import utils.StopWatch;
 import utils.Throwables;
-import utils.Utilities;
 import utils.func.FOption;
 import utils.stream.FStream;
 
@@ -28,7 +28,7 @@ public abstract class MultiSourcePartitionReader<T,R extends PartitionReader<Int
 	abstract protected R getPartitionReader(T source) throws IOException;
 	
 	protected MultiSourcePartitionReader(FStream<T> sources) {
-		Utilities.checkNotNullArgument(sources, "sources is null");
+		Preconditions.checkNotNullArgument(sources, "sources is null");
 		
 		m_sources = sources;
 		setLogger(s_logger);

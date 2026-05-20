@@ -5,9 +5,10 @@ import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nullable;
 
-import picocli.CommandLine.Option;
-import utils.Utilities;
+import utils.Preconditions;
 import utils.func.FOption;
+
+import picocli.CommandLine.Option;
 
 /**
  * 
@@ -31,14 +32,14 @@ public class ShapefileParameters {
 	@Option(names={"--charset", "-c"}, paramLabel="charset",
 			description={"Character encoding of the target shapefile file"})
 	public ShapefileParameters charset(String charset) {
-		Utilities.checkNotNullArgument(charset);
+		Preconditions.checkNotNullArgument(charset, "charset is null");
 		
 		m_charset = Charset.forName(charset);
 		return this;
 	}
 	
 	public ShapefileParameters charset(Charset charset) {
-		Utilities.checkNotNullArgument(charset);
+		Preconditions.checkNotNullArgument(charset, "charset is null");
 		
 		m_charset = charset;
 		return this;

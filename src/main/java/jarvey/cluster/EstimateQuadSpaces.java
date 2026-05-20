@@ -16,6 +16,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import utils.Preconditions;
+import utils.StopWatch;
+import utils.Tuple;
+import utils.UnitUtils;
+import utils.stream.FStream;
+
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.cluster.EstimateQuadSpaces.PartitionEstimate;
@@ -23,12 +29,6 @@ import jarvey.support.MapTile;
 import jarvey.support.RecordLite;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
-
-import utils.StopWatch;
-import utils.Tuple;
-import utils.UnitUtils;
-import utils.Utilities;
-import utils.stream.FStream;
 
 
 /**
@@ -48,7 +48,7 @@ public class EstimateQuadSpaces implements Callable<Tuple<Integer, TreeSet<Parti
 													+ 1 * 8 + 4; // 1 long for cluster-id array + array length
 	
 	public EstimateQuadSpaces(JarveySession jarvey, String dsId, EstimateQuadSpacesOptions opts) {
-		Utilities.checkArgument(opts.isValid(), "invalid EstimateQuadSpacesOptions");
+		Preconditions.checkArgument(opts.isValid(), "invalid EstimateQuadSpacesOptions");
 		
 		m_jarvey = jarvey;
 		m_dsId = dsId;

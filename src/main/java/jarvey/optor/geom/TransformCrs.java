@@ -4,12 +4,12 @@ import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import utils.Preconditions;
+import utils.geo.util.CoordinateTransform;
+
 import jarvey.support.RecordLite;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
-import utils.geo.util.CoordinateTransform;
 
 /**
  * 
@@ -25,7 +25,7 @@ public class TransformCrs extends GeometryTransform {
 	
 	public TransformCrs(int toSrid, GeomOpOptions opts) {
 		super(opts);
-		Utilities.checkArgument(toSrid > 0, "invalid target srid");
+		Preconditions.checkArgument(toSrid > 0, "invalid target srid");
 		
 		m_toSrid = toSrid;
 		setLogger(s_logger);

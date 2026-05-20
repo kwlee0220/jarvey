@@ -32,7 +32,7 @@ import com.google.common.collect.Maps;
 
 import utils.CIString;
 import utils.KeyValue;
-import utils.Utilities;
+import utils.Preconditions;
 import utils.func.FOption;
 import utils.stream.FStream;
 
@@ -311,7 +311,7 @@ public class JarveySchema implements Serializable {
 	}
 	
 	public JarveySchema complement(Iterable<String> key) {
-		Utilities.checkNotNullArgument(key, "key column list is null");
+		Preconditions.checkNotNullArgument(key, "key column list is null");
 		
 		Set<CIString> names = FStream.from(key).map(CIString::of).toSet();
 		return FStream.from(m_columns)

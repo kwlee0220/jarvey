@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
-import utils.Utilities;
+import utils.Preconditions;
 import utils.stream.FStream;
 
 
@@ -73,7 +73,7 @@ public interface JarveyPath {
 	}
 	
 	public default void moveTo(JarveyPath dst) {
-		Utilities.checkNotNullArgument(dst, "dst is null");
+		Preconditions.checkNotNullArgument(dst, "dst is null");
 		
 		if ( !exists() ) {
 			throw new JarveyFileException("source file not found: path=" + this);

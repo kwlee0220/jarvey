@@ -15,6 +15,11 @@ import org.apache.spark.sql.Row;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import utils.CIString;
+import utils.Preconditions;
+import utils.Tuple;
+import utils.stream.FStream;
+
 import jarvey.support.colexpr.ColumnSelectionExprParser.AliasContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AllButContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.AllContext;
@@ -27,11 +32,6 @@ import jarvey.support.colexpr.ColumnSelectionExprParser.IdListContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.NamespaceContext;
 import jarvey.support.colexpr.ColumnSelectionExprParser.SelectionExprContext;
 import jarvey.type.JarveySchema;
-
-import utils.CIString;
-import utils.Tuple;
-import utils.Utilities;
-import utils.stream.FStream;
 
 /**
  * 
@@ -51,21 +51,21 @@ public class ColumnSelector {
 	}
 	
 	private ColumnSelector(Map<String,JarveySchema> namespaces, String columnExpression) {
-		Utilities.checkNotNullArgument(columnExpression, "column expression is null");
+		Preconditions.checkNotNullArgument(columnExpression, "column expression is null");
 		
 		m_schemas = namespaces;
 		m_colExpr = columnExpression;
 	}
 	
 	public JarveySchema getSourceSchema(String alias) {
-		Utilities.checkNotNullArgument(alias, "RecordSchema alias is null");
+		Preconditions.checkNotNullArgument(alias, "RecordSchema alias is null");
 		
 		return m_schemas.get(alias);
 	}
 	
 	public ColumnSelector addOrReplaceDataset(String alias, JarveySchema schema) {
-		Utilities.checkNotNullArgument(alias, "StructType alias is null");
-		Utilities.checkNotNullArgument(schema, "StructType is null");
+		Preconditions.checkNotNullArgument(alias, "StructType alias is null");
+		Preconditions.checkNotNullArgument(schema, "StructType is null");
 		
 		Map<String,JarveySchema> added = Maps.newHashMap(m_schemas);
 		added.put(alias, schema);

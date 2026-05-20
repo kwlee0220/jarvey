@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import org.geotools.geometry.jts.Geometries;
 
-import utils.Utilities;
+import utils.Preconditions;
 
 /**
  * 
@@ -23,8 +23,8 @@ public final class GeometryColumnInfo implements Serializable {
 	private final GeometryType m_type;
 	
 	public GeometryColumnInfo(String colName, GeometryType colType) {
-		Utilities.checkNotNullArgument(colName, "Geometry column name");
-		Utilities.checkNotNullArgument(colType, "Geometry type");
+		Preconditions.checkNotNullArgument(colName, "Geometry column name");
+		Preconditions.checkNotNullArgument(colType, "Geometry type");
 		
 		m_name = colName;
 		m_type = colType;

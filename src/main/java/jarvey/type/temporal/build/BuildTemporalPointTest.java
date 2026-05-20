@@ -4,6 +4,7 @@ import static org.apache.spark.sql.functions.callUDF;
 import static org.apache.spark.sql.functions.collect_list;
 import static org.apache.spark.sql.functions.expr;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -14,15 +15,14 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import utils.UnitUtils;
+import utils.stream.FStream;
+
 import jarvey.JarveySession;
 import jarvey.datasource.DatasetException;
 import jarvey.support.Rows;
 import jarvey.support.SchemaUtils;
 import jarvey.type.JarveyDataTypes;
-
-import utils.UnitUtils;
-import utils.Utilities;
-import utils.stream.FStream;
 
 /**
  * 
@@ -85,7 +85,7 @@ public class BuildTemporalPointTest {
 		// key값과 좌표값이 null인 레코드는 제외시킨다.
 		Column keyNotNull = FStream.of(Rows.toColumns(input, m_keyColNames, m_xytColNames))
 									.map(c -> c.isNotNull())
-									.reduce((c1, c2) -> c1.and(c2));
+									.reduce((c1, c2) -> c1.and(c2)).get();
 		input = input.filter(keyNotNull);
 		
 		// TemporalPoint 데이터 생성에 필요한 데이터만 뽑는다.
@@ -93,7 +93,7 @@ public class BuildTemporalPointTest {
 		Column[] xytCols = new Column[]{ input.col(m_xytColNames[0]).as(X),
 										input.col(m_xytColNames[1]).as(Y),
 										input.col(m_xytColNames[2]).as(T) };
-		input = input.select(Utilities.concat(keyCols, xytCols));
+		input = input.select(ArrayUtils.addAll(keyCols, xytCols));
 		
 		// x, y 좌표 값을 float 타입을 casting 시킨다.
 		input = input.withColumn(X, input.col(X).cast("float"))
@@ -113,7 +113,7 @@ public class BuildTemporalPointTest {
 		// TemporalPoint 데이터가 너무 커져서 Out-Of-Memory 예외가 발생하는 것을 방지하기 위해
 		// 데이터를 일정기간 단위(m_segmentPeriodMillis)로 분할하기 위한 salt 컬럼을 생성한다.
 		String periodExpr = String.format("cast(%s / %d as int) as %s", T, m_periodMillis, PERIOD_COL_NAME);
-		input = input.selectExpr(Utilities.concat(m_keyColNames, periodExpr, X, Y, T));
+		input = input.selectExpr(ArrayUtils.addAll(m_keyColNames, periodExpr, X, Y, T));
 		
 		return input;
 	}
@@ -124,7 +124,7 @@ public class BuildTemporalPointTest {
 		// TemporalPoint 데이터가 너무 커져서 Out-Of-Memory 예외가 발생하는 것을 방지하기 위해
 		// 데이터를 일정기간 단위(m_segmentPeriodMillis)로 분할하기 위한 salt 컬럼을 생성한다.
 		String periodExpr = String.format("cast(%s / %d as int) as %s", T, m_periodMillis, PERIOD_COL_NAME);
-		input = input.selectExpr(Utilities.concat(m_keyColNames, periodExpr, X, Y, T));
+		input = input.selectExpr(ArrayUtils.addAll(m_keyColNames, periodExpr, X, Y, T));
 		
 		Column[] keyCols = Rows.toColumns(input, m_keyColNames);
 		StructType outSchema = SchemaUtils.toBuilder(input.select(keyCols).schema())

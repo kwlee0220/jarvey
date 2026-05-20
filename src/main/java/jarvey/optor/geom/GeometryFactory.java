@@ -2,14 +2,14 @@ package jarvey.optor.geom;
 
 import org.locationtech.jts.geom.Geometry;
 
+import utils.Preconditions;
+
 import jarvey.JarveySession;
 import jarvey.optor.RecordLevelFunction;
 import jarvey.support.RecordLite;
 import jarvey.type.GeometryColumnInfo;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
 
 /**
  * 
@@ -28,7 +28,7 @@ public abstract class GeometryFactory extends RecordLevelFunction {
 	abstract protected Geometry toOutputGeometry(RecordLite inputRecord);
 	
 	protected GeometryFactory(String outGeomCol) {
-		Utilities.checkNotNullArgument(outGeomCol, "Output Geometry column");
+		Preconditions.checkNotNullArgument(outGeomCol, "Output Geometry column");
 
 		m_outGeomCol = outGeomCol;
 	}

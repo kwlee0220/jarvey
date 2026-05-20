@@ -2,10 +2,11 @@ package jarvey.datasource.shp;
 
 import java.nio.charset.Charset;
 
-import picocli.CommandLine.Option;
+import utils.Preconditions;
 import utils.UnitUtils;
-import utils.Utilities;
 import utils.func.FOption;
+
+import picocli.CommandLine.Option;
 
 /**
  * 
@@ -66,7 +67,7 @@ public class ExportShapefileParameters {
 	}
 	
 	public ExportShapefileParameters splitSize(long splitSize) {
-		Utilities.checkArgument(splitSize > 0, "splitSize > 0");
+		Preconditions.checkArgument(splitSize > 0, "splitSize > 0");
 		
 		m_splitSize = (splitSize > 0) ? FOption.of(splitSize) : FOption.empty();
 		return this;

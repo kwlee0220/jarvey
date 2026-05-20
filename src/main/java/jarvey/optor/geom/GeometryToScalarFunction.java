@@ -4,12 +4,12 @@ import javax.annotation.Nullable;
 
 import org.locationtech.jts.geom.Geometry;
 
+import utils.Preconditions;
+
 import jarvey.support.RecordLite;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveyDataType;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
 
 /**
  * 
@@ -26,7 +26,7 @@ public abstract class GeometryToScalarFunction<T> extends GeometryFunction {
 	abstract protected T toScalar(@Nullable Geometry geom, RecordLite inputRecord);
 	
 	protected GeometryToScalarFunction(String outCol) {
-		Utilities.checkNotNullArgument(outCol, "output column");
+		Preconditions.checkNotNullArgument(outCol, "output column");
 		
 		m_outCol = outCol;
 	}

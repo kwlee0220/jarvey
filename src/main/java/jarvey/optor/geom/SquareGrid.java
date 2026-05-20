@@ -7,9 +7,9 @@ import org.locationtech.jts.geom.Envelope;
 
 import utils.CSV;
 import utils.KeyValue;
+import utils.Preconditions;
 import utils.Size2d;
 import utils.UnitUtils;
-import utils.Utilities;
 import utils.geo.util.GeoClientUtils;
 
 /**
@@ -23,8 +23,8 @@ public class SquareGrid implements Serializable {
 	private final Size2d m_cellSize;
 	
 	public SquareGrid(Envelope bounds, Size2d cellSize) {
-		Utilities.checkNotNullArgument(bounds, "Universe Envelope should not be null");
-		Utilities.checkNotNullArgument(cellSize, "Grid cell size should not be null");
+		Preconditions.checkNotNullArgument(bounds, "Universe Envelope should not be null");
+		Preconditions.checkNotNullArgument(cellSize, "Grid cell size should not be null");
 		
 		m_gridBounds = bounds;
 		m_cellSize = cellSize;
@@ -50,7 +50,7 @@ public class SquareGrid implements Serializable {
 	}
 	
 	public static SquareGrid parseString(String expr) {
-		Utilities.checkNotNullArgument(expr, "SquareGrid string is null");
+		Preconditions.checkNotNullArgument(expr, "SquareGrid string is null");
 	
 		Map<String,String> kvMap = CSV.parseCsv(expr, ';')
 										.toKeyValueStream(KeyValue::parse)

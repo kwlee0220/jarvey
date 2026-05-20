@@ -9,16 +9,16 @@ import org.locationtech.jts.geom.Geometry;
 
 import com.google.common.collect.Lists;
 
+import utils.Preconditions;
+import utils.geo.util.CoordinateTransform;
+import utils.stream.FStream;
+
 import jarvey.SpatialDataFrame;
 import jarvey.support.MapTile;
 import jarvey.support.RecordLite;
 import jarvey.type.GeometryType;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
-import utils.geo.util.CoordinateTransform;
-import utils.stream.FStream;
 
 
 /**
@@ -40,7 +40,7 @@ public class AttachQuadInfo extends GeometryFunction {
 	private transient List<Long> m_qids;	// 객체 생성 횟수를 줄이기 위한 재사용용
 	
 	public AttachQuadInfo(long[] candidateQids) {
-		Utilities.checkArgument(candidateQids != null && candidateQids.length > 0,
+		Preconditions.checkArgument(candidateQids != null && candidateQids.length > 0,
 								"invalid candidate quid-ids: " + candidateQids);
 		
 		m_candidateQids = Arrays.stream(candidateQids).filter(q -> q != MapTile.OUTLIER_QID).toArray();

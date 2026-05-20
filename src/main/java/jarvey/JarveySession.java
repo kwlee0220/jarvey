@@ -23,6 +23,12 @@ import org.apache.spark.sql.types.StructField;
 
 import com.google.common.primitives.Longs;
 
+import utils.Preconditions;
+import utils.func.Unchecked;
+import utils.io.FilePath;
+import utils.io.LfsPath;
+import utils.stream.FStream;
+
 import jarvey.cluster.QuadSpacePartitioner;
 import jarvey.datasource.DatasetException;
 import jarvey.datasource.JarveyDataFrameReader;
@@ -34,12 +40,6 @@ import jarvey.type.JarveyColumn;
 import jarvey.type.JarveySchema;
 import jarvey.type.temporal.TemporalUDFs;
 import jarvey.udf.SpatialUDFs;
-
-import utils.Utilities;
-import utils.func.Unchecked;
-import utils.io.FilePath;
-import utils.io.LfsPath;
-import utils.stream.FStream;
 
 /**
  *
@@ -60,8 +60,8 @@ public class JarveySession implements Serializable {
 	private final FilePath m_quadSetsRoot;
 	
 	private JarveySession(SparkSession session, FilePath rootPath) {
-		Utilities.checkNotNullArgument(session, "SparkSession");
-		Utilities.checkNotNullArgument(rootPath, "dbRootPath");
+		Preconditions.checkNotNullArgument(session, "SparkSession");
+		Preconditions.checkNotNullArgument(rootPath, "dbRootPath");
 		
 		m_session = session;
 		

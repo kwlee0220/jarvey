@@ -7,13 +7,13 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Sets;
 
+import utils.Preconditions;
+import utils.func.FOption;
+
 import jarvey.optor.geom.SpatialRelation;
 import jarvey.support.colexpr.JoinColumnSelector;
 import jarvey.support.colexpr.SelectedColumnInfo;
 import jarvey.type.JarveySchema;
-
-import utils.Utilities;
-import utils.func.FOption;
 
 /**
  * 
@@ -36,8 +36,8 @@ public class SpatialJoinOptions implements Serializable {
 	private final boolean m_negated;
 	
 	private SpatialJoinOptions(SpatialRelation joinExpr, String joinType, String outputCols, boolean negated) {
-		Utilities.checkNotNullArgument(joinExpr);
-		Utilities.checkNotNullArgument(joinType);
+		Preconditions.checkNotNullArgument(joinExpr, "join expression is null");
+		Preconditions.checkNotNullArgument(joinType, "join type is null");
 		
 		m_joinExpr = joinExpr;
 		m_joinType = joinType;
@@ -46,7 +46,7 @@ public class SpatialJoinOptions implements Serializable {
 	}
 	
 	public static SpatialJoinOptions OUTPUT(String outCols) {
-		Utilities.checkNotNullArgument(outCols, "output columns are null");
+		Preconditions.checkNotNullArgument(outCols, "output columns are null");
 		
 		return DEFAULT.outputColumns(outCols);
 	}
@@ -58,12 +58,12 @@ public class SpatialJoinOptions implements Serializable {
 	}
 	
 	public static SpatialJoinOptions WITHIN_DISTANCE(double dist) {
-		Utilities.checkArgument(dist >= 0, "dist >= 0");
+		Preconditions.checkArgument(dist >= 0, "dist >= 0");
 		
 		return DEFAULT.joinExpr(SpatialRelation.WITHIN_DISTANCE(dist));
 	}
 	public SpatialJoinOptions withinDistance(double dist) {
-		Utilities.checkArgument(dist >= 0, "dist >= 0");
+		Preconditions.checkArgument(dist >= 0, "dist >= 0");
 		
 		return joinExpr(SpatialRelation.WITHIN_DISTANCE(dist));
 	}
@@ -72,7 +72,7 @@ public class SpatialJoinOptions implements Serializable {
 		return m_joinExpr;
 	}
 	public SpatialJoinOptions joinExpr(SpatialRelation expr) {
-		Utilities.checkNotNullArgument(expr, "join expression");
+		Preconditions.checkNotNullArgument(expr, "join expression");
 		
 		return new SpatialJoinOptions(expr, m_joinType, m_outputCols, m_negated);
 	}
@@ -86,7 +86,7 @@ public class SpatialJoinOptions implements Serializable {
 		return m_joinType;
 	}
 	public SpatialJoinOptions joinType(String type) {
-		Utilities.checkNotNullArgument(type, "join type");
+		Preconditions.checkNotNullArgument(type, "join type");
 		
 		return new SpatialJoinOptions(m_joinExpr, type, m_outputCols, m_negated);
 	}

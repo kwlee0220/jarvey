@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import utils.Utilities;
+import utils.Preconditions;
 import utils.stream.FStream;
 import utils.stream.KeyValueFStream;
 
@@ -124,7 +124,7 @@ public class SchemaUtils {
 		return complement(schema, Arrays.asList(colNames));
 	}
 	public static StructType complement(StructType schema, Iterable<String> colNames) {
-		Utilities.checkNotNullArgument(colNames, "column list is null");
+		Preconditions.checkNotNullArgument(colNames, "column list is null");
 		
 		Set<String> names = Sets.newHashSet(colNames);
 		return FStream.of(schema.fields())

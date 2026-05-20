@@ -15,10 +15,9 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import utils.Utilities;
+import utils.Preconditions;
 import utils.func.Lazy;
 import utils.geo.util.GeometryUtils;
 
@@ -49,7 +48,7 @@ public class MapTile implements Comparable<MapTile>, Serializable {
 	}
     
 	public static MapTile fromQuadKey(String quadKey) {
-		Utilities.checkArgument(!quadKey.equals(OUTLIER_QKEY), "outlier quadkey");
+		Preconditions.checkArgument(!quadKey.equals(OUTLIER_QKEY), "outlier quadkey");
 		
 		int tileX = 0;
 		int tileY = 0;
@@ -81,7 +80,7 @@ public class MapTile implements Comparable<MapTile>, Serializable {
 	}
 	
 	public static MapTile fromQuadId(long quadId) {
-		Utilities.checkArgument(!OUTLIER_QID.equals(quadId), "outlier quad-id");
+		Preconditions.checkArgument(!OUTLIER_QID.equals(quadId), "outlier quad-id");
 		
 		return fromQuadKey(toQuadKey(quadId));
 	}

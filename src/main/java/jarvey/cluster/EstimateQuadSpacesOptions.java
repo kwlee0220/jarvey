@@ -1,7 +1,7 @@
 package jarvey.cluster;
 
+import utils.Preconditions;
 import utils.UnitUtils;
-import utils.Utilities;
 import utils.func.FOption;
 
 /**
@@ -26,10 +26,10 @@ public class EstimateQuadSpacesOptions {
 	
 	public EstimateQuadSpacesOptions(double sampleRatio, long clusterSizeHint, long clusterSizeLimit,
 									long outlierSizeLimit, boolean save) {
-		Utilities.checkArgument(sampleRatio > 0 && sampleRatio <= 1,
+		Preconditions.checkArgument(sampleRatio > 0 && sampleRatio <= 1,
 								String.format("invalid sampling ratio: %.3f", sampleRatio));
-		Utilities.checkArgument(clusterSizeHint >= 1, String.format("invalid cluster size: %d", clusterSizeHint));
-		Utilities.checkArgument(outlierSizeLimit < clusterSizeHint,
+		Preconditions.checkArgument(clusterSizeHint >= 1, String.format("invalid cluster size: %d", clusterSizeHint));
+		Preconditions.checkArgument(outlierSizeLimit < clusterSizeHint,
 								String.format("outlier(%s) < cluster_size(%s)",
 												UnitUtils.toByteSizeString(outlierSizeLimit),
 												UnitUtils.toByteSizeString(clusterSizeHint)));
