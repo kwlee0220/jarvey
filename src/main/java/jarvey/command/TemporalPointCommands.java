@@ -4,6 +4,15 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+
+import utils.PicocliSubCommand;
+import utils.StopWatch;
+import utils.UnitUtils;
+import utils.stream.FStream;
+
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.support.SchemaUtils;
@@ -12,14 +21,6 @@ import jarvey.type.JarveyDataType;
 import jarvey.type.JarveyDataTypes;
 import jarvey.type.temporal.build.BuildTemporalPoint;
 import jarvey.type.temporal.build.CreateTemporalPointIndex;
-
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
-import utils.PicocliSubCommand;
-import utils.StopWatch;
-import utils.UnitUtils;
-import utils.stream.FStream;
 
 /**
  * 
@@ -57,7 +58,7 @@ class TemporalPointCommands {
 		@Option(names= {"-s", "--segment_interval"}, paramLabel="interval", defaultValue="10m",
 				description="segment interval (default: '10m')")
 		private void setSegmentInterval(String interval) {
-			m_segmentInterval = UnitUtils.parseDurationMillis(interval);
+			m_segmentInterval = UnitUtils.parseDuration(interval).toMillis();
 		}
 		private long m_segmentInterval;
 		

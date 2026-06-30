@@ -46,7 +46,7 @@ public abstract class FlatMapIterator<IN,OUT> implements Iterator<OUT>, LoggerSe
 	}
 	
 	public FlatMapIterator(Iterator<IN> iter) {
-		this(iter, UnitUtils.parseDurationMillis("1m"));
+		this(iter, UnitUtils.parseDuration("1m").toMillis());
 	}
 	
 	public int getInputCount() {

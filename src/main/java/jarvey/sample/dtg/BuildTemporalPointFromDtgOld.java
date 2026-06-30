@@ -10,12 +10,12 @@ import java.io.File;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
+import utils.StopWatch;
+import utils.UnitUtils;
+
 import jarvey.JarveySession;
 import jarvey.SpatialDataFrame;
 import jarvey.command.JarveyLocalCommand;
-
-import utils.StopWatch;
-import utils.UnitUtils;
 
 
 /**
@@ -29,7 +29,7 @@ public class BuildTemporalPointFromDtgOld {
 	private static final String DATASET_TRAJECTORIES = "tmp/dtg_trajectories";
 	private static final String TEMPORAL_POINT_COLUMN = "tpoint";
 	private static final int GROUP_PARTITION_COUNT = 500;
-	private static final long TRAJ_SPLIT_INTERVAL = UnitUtils.parseDurationMillis("1m");
+	private static final long TRAJ_SPLIT_INTERVAL = UnitUtils.parseDuration("1m").toMillis();
 	
 	public static final void main(String... args) throws Exception {
 		JarveyLocalCommand.configureLog4j(new File("."), false);

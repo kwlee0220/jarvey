@@ -40,7 +40,7 @@ public abstract class MapIterator<IN,OUT> implements Iterator<OUT>, LoggerSettab
 	}
 	
 	public MapIterator(Iterator<IN> iter) {
-		this(iter, UnitUtils.parseDurationMillis("1m"));
+		this(iter, UnitUtils.parseDuration("1m").toMillis());
 	}
 	
 	public int getInputCount() {
