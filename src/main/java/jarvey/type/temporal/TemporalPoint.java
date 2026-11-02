@@ -123,7 +123,7 @@ public class TemporalPoint implements Comparable<TemporalPoint> {
 		List<Integer> lastIndexes
 						= FStream.from(m_points)
 								.zipWithIndex()
-								.buffer(2, 1)
+								.window(2, 1)
 								.filter(pair -> pair.size() > 1)
 								.filter(pair -> {
 									Indexed<TimedPoint> tup1 = pair.get(0);

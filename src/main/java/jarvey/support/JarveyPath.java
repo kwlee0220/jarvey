@@ -66,7 +66,7 @@ public interface JarveyPath {
 	
 	public default long getTotalLength() throws IOException {
 		return walkRegularFileTree()
-					.tryMap(JarveyPath::getLength)
+					.mapToTry(JarveyPath::getLength)
 					.flatMapTry(v -> v)
 					.mapToLong(v -> v)
 					.sum();
