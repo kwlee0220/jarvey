@@ -40,7 +40,7 @@ public class TemporalFloat implements Row {
 	}
 	
 	public TemporalFloat(TimedFloat[] timeds) {
-		m_timeds = Lazy.of(timeds);
+		m_timeds = Lazy.ofValue(timeds);
 		m_wrapped = null;
 	}
 	
@@ -164,7 +164,7 @@ public class TemporalFloat implements Row {
 			System.arraycopy(timeds, idx, added, idx+1, remains);
 		}
 		
-		m_timeds = Lazy.of(added);
+		m_timeds = Lazy.ofValue(added);
 	}
 	
 	public static final TemporalFloat merge(TemporalFloat tp1, TemporalFloat tp2) {

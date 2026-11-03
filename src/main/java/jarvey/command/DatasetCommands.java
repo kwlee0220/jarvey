@@ -559,8 +559,8 @@ public class DatasetCommands {
 
 			JarveyDataFrameReader reader = jarvey.read();
 			reader = reader.option("charset", m_shpParams.charset().toString());
-			reader = m_shpParams.srid().transform(reader, (r, shpSrid) -> r.option("srid", ""+shpSrid));
-			reader = m_shpParams.paritionCount().transform(reader, (r, n) -> r.option("nparts", ""+n));
+			reader = m_shpParams.srid().fold(reader, (r, shpSrid) -> r.option("srid", ""+shpSrid));
+			reader = m_shpParams.paritionCount().fold(reader, (r, n) -> r.option("nparts", ""+n));
 
 			int srid = m_shpParams.srid().getOrElseThrow(() -> {
 				SimpleFeatureType sfType = ShapefileDataSets.getSimpleFeatureType(m_start);

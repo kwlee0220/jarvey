@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 
 import utils.Tuple;
 import utils.func.FOption;
+import utils.func.Nullables;
 import utils.geo.util.GeoClientUtils;
 import utils.geo.util.GeometryUtils;
 import utils.stream.FStream;
@@ -280,7 +281,7 @@ public class GeoUtils extends GeoClientUtils {
 													.map(line -> Tuple.of(line, pt.distance(line)))
 													.max(Tuple::_2)
 													.get();
-		return FOption.getOrElse(maxLine, () -> Tuple.of(EMPTY_LINESTRING, -1d));
+		return Nullables.orElseGet(maxLine, () -> Tuple.of(EMPTY_LINESTRING, -1d));
 	}
 	
 	public static Tuple<Point,Double> findClosestPointOnLine(Point pt, LineString lineString) {

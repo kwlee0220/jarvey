@@ -40,7 +40,7 @@ public class TemporalInteger implements Row {
 	}
 	
 	public TemporalInteger(TimedInteger[] timeds) {
-		m_timeds = Lazy.of(timeds);
+		m_timeds = Lazy.ofValue(timeds);
 		m_wrapped = null;
 	}
 	
@@ -164,7 +164,7 @@ public class TemporalInteger implements Row {
 			System.arraycopy(timeds, idx, added, idx+1, remains);
 		}
 		
-		m_timeds = Lazy.of(added);
+		m_timeds = Lazy.ofValue(added);
 	}
 	
 	public static final TemporalInteger merge(TemporalInteger tp1, TemporalInteger tp2) {

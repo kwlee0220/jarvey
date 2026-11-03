@@ -47,7 +47,7 @@ public class TemporalPoint implements Row {
 	}
 	
 	public TemporalPoint(TimedPoint[] timeds) {
-		m_timeds = Lazy.of(timeds);
+		m_timeds = Lazy.ofValue(timeds);
 		m_wrapped = null;
 	}
 	
@@ -174,7 +174,7 @@ public class TemporalPoint implements Row {
 			System.arraycopy(timeds, idx, added, idx+1, remains);
 		}
 		
-		m_timeds = Lazy.of(added);
+		m_timeds = Lazy.ofValue(added);
 	}
 	
 	public static final TemporalPoint merge(TemporalPoint tp1, TemporalPoint tp2) {

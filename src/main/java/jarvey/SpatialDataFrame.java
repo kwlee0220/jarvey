@@ -59,6 +59,7 @@ import com.google.common.primitives.Longs;
 import utils.Preconditions;
 import utils.Tuple;
 import utils.func.FOption;
+import utils.func.Nullables;
 import utils.geo.util.GeometryUtils;
 import utils.stream.FStream;
 
@@ -677,7 +678,7 @@ public class SpatialDataFrame implements Serializable {
 		
 		if ( gcInfo.getSrid() == toSrid ) {
 			String inputGeomColName = assertDefaultGeometryColumnName();
-			String outputGeomColName = FOption.getOrElse(outCol, inputGeomColName);
+			String outputGeomColName = Nullables.orElse(outCol, inputGeomColName);
 			if ( !inputGeomColName.equals(outputGeomColName) ) {
 				return withGeometryColumn(outputGeomColName, col(inputGeomColName));
 			}
